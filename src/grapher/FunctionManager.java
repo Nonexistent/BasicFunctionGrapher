@@ -65,8 +65,33 @@ public class FunctionManager {
 			for(int x = Xmin; x < Xmax + 1; x++){
 				double y = evaluate(h, x);
 				System.out.println("x: " +x + " y: "+ y);
+				if(y != Double.POSITIVE_INFINITY && y != Double.NEGATIVE_INFINITY){
 				this.yMap.put(i, graph.functionToImage(y));
+				}else{
+					verticalAsymptote(i, x, h);
+				}
 				i = i + rightIncre;
+			}
+		}
+		
+		private void verticalAsymptote(double i, double x, LinkedList<String> h){
+			Stack<Double> xTemp = new Stack<Double>(), yTemp = new Stack<Double>();
+			double increment = 0.2 * rightIncre, fromLeft = i - rightIncre, fromRight = i + rightIncre;
+			for(double j = x - 1; j < x; j = j + 0.2){
+				double y = evaluate(h, j);
+				System.out.println("from left: x: "+j+" y: "+y);
+				this.yMap.put(fromLeft, graph.functionToImage(y));
+				fromLeft = fromLeft + increment;
+			}
+			for(double j = x + 1; j > x; j = j - 0.2){
+				double y = evaluate(h, j);
+				System.out.println("from right: x: "+j+" y: "+y);
+				xTemp.push(fromRight); yTemp.push(graph.functionToImage(y));
+				fromRight = fromRight - increment;
+			}
+			this.yMap.put(i, Double.MAX_VALUE);
+			for(int k = 0; k < xTemp.size(); k++){
+				this.yMap.put(xTemp.pop(), yTemp.pop());
 			}
 		}
 		
@@ -156,12 +181,12 @@ public class FunctionManager {
 			}else return null;
 		}
 		
-		private Double evaluate(LinkedList<String> s, int x){
+		private Double evaluate(LinkedList<String> s, double x){
 			LinkedList<String> temp = new LinkedList<String>(s);
 			for(String j : temp){
 				int index = temp.indexOf(j);
 				if(j.equals("x")){
-					temp.set(index, Integer.toString(x));
+					temp.set(index, Double.toString(x));
 				}
 			}
 			double a = 0;

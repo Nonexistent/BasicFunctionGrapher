@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+import java.util.LinkedHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -22,9 +23,11 @@ public class Gui {
 	private JLabel function = new JLabel();
 	private FunctionManager functionManager;
 	private Graph graph;
+	private LinkedHashMap<Double, Double> yMap;
 	
 	public Gui(){
 		this.graph = new Graph(this);
+		this.yMap = this.graph.getMap();
 	}
 	
 	private void createFM(){
@@ -35,7 +38,7 @@ public class Gui {
 	public void go(){
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
-		frame.setSize(400, 500);
+		frame.setSize(420, 500);
 		frame.getContentPane().add(graph());
 		createFM();
 		frame.getContentPane().add(label());
@@ -196,12 +199,21 @@ public class Gui {
 				function.setText(s.replace(s.substring(s.length() - 1), ""));
 			}
 		}));
-		p.add(new JButton(new AbstractAction("Clear"){
+		p.add(new JButton(new AbstractAction("Clear All"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				function.setText("");
 				clearGraph();
+				yMap.clear();
 				graph.init();
+				frame.repaint();
+			}
+		}));
+		p.add(new JButton(new AbstractAction("Clear Expression"){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				function.setText("");
+				yMap.clear();
 				frame.repaint();
 			}
 		}));

@@ -3,6 +3,7 @@ package grapher;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
@@ -61,10 +62,26 @@ public class Graph {
 	public void plot(){
 		//CHANGE INTO DOING EACH SIDE SEPARATLY; FOR LEFT SIDE, AND THEN FOR RIGHT SIDE
 		g.setColor(Color.RED);
+		GeneralPath polyline = new GeneralPath(GeneralPath.WIND_NON_ZERO, yMap.size());
+		double sX =0;double sY=0;
 		for(Double d : this.yMap.keySet()){
+			sX = d; sY = yMap.get(d);break;
+		}
+		polyline.moveTo(sX, sY);
+		for(Double d : this.yMap.keySet()){
+			if(!this.yMap.get(d).equals(Double.MAX_VALUE)){
 			g.setStroke(new BasicStroke(2));
 			g.draw(new Line2D.Double(d, this.yMap.get(d), d, this.yMap.get(d)));
+			polyline.lineTo(d, this.yMap.get(d));
+			}else{
+				g.setStroke(new BasicStroke(1));
+				g.draw(polyline);
+				polyline.reset();
+				polyline.moveTo(d, this.yMap.get(d));
+			}
 		}
+		g.setStroke(new BasicStroke(1));
+		g.draw(polyline);
 	}
 	
 	public double functionToImage(double input){
