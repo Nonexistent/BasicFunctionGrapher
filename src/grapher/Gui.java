@@ -6,8 +6,6 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
-import java.util.LinkedHashMap;
-
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,14 +18,13 @@ import javax.swing.JPanel;
 public class Gui {
 	private JFrame frame = new JFrame("Graph");
 	private BufferedImage graphArea = new BufferedImage(280, 250, BufferedImage.TYPE_INT_RGB);
-	private JLabel function = new JLabel();
+	private JLabel functionLabel = new JLabel("");
 	private FunctionManager functionManager;
 	private Graph graph;
-	private LinkedHashMap<Double, Double> yMap;
+	private Function function;
 	
 	public Gui(){
 		this.graph = new Graph(this);
-		this.yMap = this.graph.getMap();
 	}
 	
 	private void createFM(){
@@ -64,7 +61,7 @@ public class Gui {
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 		p.add(new JLabel("f(x) = "));
-		p.add(function);
+		p.add(functionLabel);
 		return p;
 	}
 	
@@ -74,62 +71,62 @@ public class Gui {
 		inner.add(new JButton(new AbstractAction(" 1 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "1");
+				functionLabel.setText(functionLabel.getText() + "1");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 2 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "2");
+				functionLabel.setText(functionLabel.getText() + "2");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 3 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "3");
+				functionLabel.setText(functionLabel.getText() + "3");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 4 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "4");
+				functionLabel.setText(functionLabel.getText() + "4");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 5 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "5");
+				functionLabel.setText(functionLabel.getText() + "5");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 6 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "6");
+				functionLabel.setText(functionLabel.getText() + "6");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 7 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "7");
+				functionLabel.setText(functionLabel.getText() + "7");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 8 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "8");
+				functionLabel.setText(functionLabel.getText() + "8");
 			}
 		}));
 		inner.add(new JButton(new AbstractAction(" 9 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "9");
+				functionLabel.setText(functionLabel.getText() + "9");
 			}
 		}));
 		inner.add(new JPanel());
 		inner.add(new JButton(new AbstractAction(" 0 "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "0");
+				functionLabel.setText(functionLabel.getText() + "0");
 			}
 		}));
 		return inner;
@@ -141,49 +138,49 @@ public class Gui {
 		p.add(new JButton(new AbstractAction(" + "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "+");
+				functionLabel.setText(functionLabel.getText() + "+");
 			}
 		}));
 		p.add(new JButton(new AbstractAction(" - "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "-");
+				functionLabel.setText(functionLabel.getText() + "-");
 			}
 		}));
 		p.add(new JButton(new AbstractAction(" * "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "*");
+				functionLabel.setText(functionLabel.getText() + "*");
 			}
 		}));
 		p.add(new JButton(new AbstractAction(" / "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "/");
+				functionLabel.setText(functionLabel.getText() + "/");
 			}
 		}));
 		p.add(new JButton(new AbstractAction(" ^ "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "^");
+				functionLabel.setText(functionLabel.getText() + "^");
 			}
 		}));
 		p.add(new JButton(new AbstractAction("X"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "x");
+				functionLabel.setText(functionLabel.getText() + "x");
 			}
 		}));
 		p.add(new JButton(new AbstractAction("("){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + "(");
+				functionLabel.setText(functionLabel.getText() + "(");
 			}
 		}));
 		p.add(new JButton(new AbstractAction(" ) "){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText(function.getText() + ")");
+				functionLabel.setText(functionLabel.getText() + ")");
 			}
 		}));
 		return p;
@@ -195,16 +192,15 @@ public class Gui {
 		p.add(new JButton(new AbstractAction("Back"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String s = function.getText();
-				function.setText(s.replace(s.substring(s.length() - 1), ""));
+				String s = functionLabel.getText();
+				functionLabel.setText(s.replace(s.substring(s.length() - 1), ""));
 			}
 		}));
 		p.add(new JButton(new AbstractAction("Clear All"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText("");
+				functionLabel.setText("");
 				clearGraph();
-				yMap.clear();
 				graph.init();
 				frame.repaint();
 			}
@@ -212,17 +208,18 @@ public class Gui {
 		p.add(new JButton(new AbstractAction("Clear Expression"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				function.setText("");
-				yMap.clear();
+				functionLabel.setText("");
 				frame.repaint();
 			}
 		}));
 		p.add(new JButton(new AbstractAction("Graph"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Gui.this.functionManager.calculate(function.getText());
-				graph.plot();
+				if(!functionLabel.getText().equals("")){
+				function = new Function(functionLabel.getText(), functionManager);
+				graph.plot(function.getMap());
 				frame.repaint();
+				}
 			}
 		}));
 		return p;

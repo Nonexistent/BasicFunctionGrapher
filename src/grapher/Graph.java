@@ -3,14 +3,15 @@ package grapher;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 
 public class Graph {
-	private int Xmax = 10;
-	private int Xmin = -10;
+	private double Xmax = 10;
+	private double Xmin = -10;
 	private int Ymax = 10;
 	private int Ymin = -10;
 	private int xLength = 0;
@@ -21,13 +22,13 @@ public class Graph {
 	private double leftIncre;
 	private BufferedImage graphArea;
 	private Graphics2D g;
-	private LinkedHashMap<Double, Double> yMap = new LinkedHashMap<Double, Double>();
 	
 	public Graph(Gui gui){
 		this.graphArea = gui.getGraphArea();
 		this.xLength = this.graphArea.getWidth();
 		this.yLength = this.graphArea.getHeight();
 		this.g = (Graphics2D)gui.getGraphics();
+		this.g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 	
 	public void init(){
@@ -59,28 +60,29 @@ public class Graph {
 		}
 	}
 	
-	public void plot(){
+	public void plot(LinkedHashMap<Double, Double> map){
 		//CHANGE INTO DOING EACH SIDE SEPARATLY; FOR LEFT SIDE, AND THEN FOR RIGHT SIDE
 		g.setColor(Color.RED);
-		GeneralPath polyline = new GeneralPath(GeneralPath.WIND_NON_ZERO, yMap.size());
+		GeneralPath polyline = new GeneralPath();
 		double sX =0;double sY=0;
-		for(Double d : this.yMap.keySet()){
-			sX = d; sY = yMap.get(d);break;
+		for(Double d : map.keySet()){
+			sX = d; sY = map.get(d);break;
 		}
 		polyline.moveTo(sX, sY);
-		for(Double d : this.yMap.keySet()){
-			if(!this.yMap.get(d).equals(Double.MAX_VALUE)){
+		for(Double d : map.keySet()){
+			if(!map.get(d).equals(Double.MAX_VALUE)){
 			g.setStroke(new BasicStroke(2));
-			g.draw(new Line2D.Double(d, this.yMap.get(d), d, this.yMap.get(d)));
-			polyline.lineTo(d, this.yMap.get(d));
+			//g.draw(new Line2D.Double(d, map.get(d), d, map.get(d)));
+			polyline.lineTo(d, map.get(d));
 			}else{
-				g.setStroke(new BasicStroke(1));
+				g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 				g.draw(polyline);
+				System.out.println("drawing");
 				polyline.reset();
-				polyline.moveTo(d, this.yMap.get(d));
+				polyline.moveTo(d, map.get(d));
 			}
 		}
-		g.setStroke(new BasicStroke(1));
+		g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
 		g.draw(polyline);
 	}
 	
@@ -89,10 +91,6 @@ public class Graph {
 			return (yLength/2) - ((Math.abs(topIncre) * input));
 		}
 		return (yLength/2) + ((Math.abs(bottomIncre) * Math.abs(input)));
-	}
-	
-	public LinkedHashMap<Double, Double> getMap(){
-		return this.yMap;
 	}
 
 	public double getTop() {
@@ -111,11 +109,11 @@ public class Graph {
 		return this.leftIncre;
 	}
 	
-	public int getXmax(){
+	public double getXmax(){
 		return this.Xmax;
 	}
 	
-	public int getXmin(){
+	public double getXmin(){
 		return this.Xmin;
 	}
 	

@@ -1,28 +1,23 @@
 package grapher;
 
+import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 
 public class FunctionManager {
 	private Graph graph;
-	private double topIncre;
-	private double bottomIncre;
 	private double rightIncre;
-	private double leftIncre;
-	private int Xmax;
-	private int Xmin;
-	private LinkedHashMap<Double, Double> yMap;
+	private double Xmax;
+	private double Xmin;
+	private DecimalFormat rounding = new DecimalFormat("#.#");
 	
 		public FunctionManager(Graph graph){
 			this.graph = graph;
-			this.topIncre = graph.getTop();
-			this.bottomIncre = graph.getBottom();
-			this.leftIncre = graph.getLeft();
 			this.rightIncre = graph.getRight();
 			this.Xmax = graph.getXmax();
 			this.Xmin = graph.getXmin();
-			this.yMap = graph.getMap();
 		}
 		
 		private enum operators{
@@ -56,46 +51,54 @@ public class FunctionManager {
 			}
 		}
 		
-		public void calculate(String s){
-			if(s.equals("")){
-				return;
-			}
-			final LinkedList<String> h = shuntingYard(tokenizer(s));
+		public LinkedHashMap<Double, Double> completeMap(LinkedList<String> expressionToken){
+			final LinkedList<String> h = shuntingYard(expressionToken);
+			LinkedHashMap<Double, Double> map = new LinkedHashMap<Double, Double>();
 			double i = 0;
-			for(int x = Xmin; x < Xmax + 1; x++){
+			double precision = 0.3;
+			for(double x = Xmin; x < Xmax + 1; x = x + precision){
+				x = Double.parseDouble(rounding.format(x));
 				double y = evaluate(h, x);
 				System.out.println("x: " +x + " y: "+ y);
 				if(y != Double.POSITIVE_INFINITY && y != Double.NEGATIVE_INFINITY){
-				this.yMap.put(i, graph.functionToImage(y));
+				map.put(i, graph.functionToImage(y));
 				}else{
-					verticalAsymptote(i, x, h);
+					verticalAsymptote(i, x, h, map);
 				}
-				i = i + rightIncre;
+				i = i + rightIncre * precision;
 			}
+			LinkedList<Double> temp = new LinkedList<Double>(map.keySet());
+			LinkedHashMap<Double, Double> newMap = new LinkedHashMap<Double, Double>();
+			Collections.sort(temp);
+			for(Double j : temp){
+				newMap.put(j, map.get(j));
+			}
+			return newMap;
 		}
 		
-		private void verticalAsymptote(double i, double x, LinkedList<String> h){
+		private void verticalAsymptote(double i, double x, LinkedList<String> h, LinkedHashMap<Double, Double> map){
 			Stack<Double> xTemp = new Stack<Double>(), yTemp = new Stack<Double>();
-			double increment = 0.2 * rightIncre, fromLeft = i - rightIncre, fromRight = i + rightIncre;
-			for(double j = x - 1; j < x; j = j + 0.2){
+			double rate = 0.25;
+			double increment = rate * rightIncre, fromLeft = i - rightIncre, fromRight = i + rightIncre;
+			for(double j = x - 1; j < x; j = j + rate){
 				double y = evaluate(h, j);
 				System.out.println("from left: x: "+j+" y: "+y);
-				this.yMap.put(fromLeft, graph.functionToImage(y));
+				map.put(fromLeft, graph.functionToImage(y));
 				fromLeft = fromLeft + increment;
 			}
-			for(double j = x + 1; j > x; j = j - 0.2){
+			for(double j = x + 1; j > x; j = j - rate){
 				double y = evaluate(h, j);
 				System.out.println("from right: x: "+j+" y: "+y);
 				xTemp.push(fromRight); yTemp.push(graph.functionToImage(y));
 				fromRight = fromRight - increment;
 			}
-			this.yMap.put(i, Double.MAX_VALUE);
+			map.put(i, Double.MAX_VALUE);
 			for(int k = 0; k < xTemp.size(); k++){
-				this.yMap.put(xTemp.pop(), yTemp.pop());
+				map.put(xTemp.pop(), yTemp.pop());
 			}
 		}
 		
-		private LinkedList<String> tokenizer(String s){
+		public LinkedList<String> tokenizer(String s){
 			LinkedList<String> done = new LinkedList<String>();
 			LinkedList<Character> temp = new LinkedList<Character>();
 			for(Character c : s.toCharArray()){
@@ -136,7 +139,7 @@ public class FunctionManager {
 					boolean isLeft = temp.getAssociativity() == -1;
 					if(temp.getPrecedense() == 2 || temp.getPrecedense() == 3 || temp.getPrecedense() == 4){
 						if(!stack.isEmpty()){
-							while(temp.getPrecedense() <= stack.peek().getPrecedense() && isLeft){
+							while(!stack.isEmpty() && temp.getPrecedense() <= stack.peek().getPrecedense() && isLeft){
 								output.add(stack.pop().getCharacter());
 							}
 							stack.push(temp);
