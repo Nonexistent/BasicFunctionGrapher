@@ -1,5 +1,7 @@
 package grapher;
 
+import grapher.tokens.Token;
+
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -20,42 +22,10 @@ public class FunctionManager {
 			this.Xmin = graph.getXmin();
 		}
 		
-		private enum operators{
-			//1 for right, -1 for left
-			PLUS(2, -1, "+"),
-			MINUS(2, -1, "-"),
-			MULTIPLY(3, -1, "*"),
-			DIVIDE(3, -1, "/"),
-			EXP(4, 1, "^"),
-			L_BRACKET(1, 0, "("),
-			R_BRACKET(1, 0, ")");
-			
-			private final int prec;
-			private final int asso;
-			private final String ch;
-			
-			operators(int precedense, int associativity, String c){
-				this.prec = precedense;
-				this.asso = associativity;
-				this.ch = c;
-			}
-			
-			public int getPrecedense(){
-				return this.prec;
-			}
-			public int getAssociativity(){
-				return this.asso;
-			}
-			public String getCharacter(){
-				return this.ch;
-			}
-		}
-		
-		public LinkedHashMap<Double, Double> completeMap(LinkedList<String> expressionToken){
-			final LinkedList<String> h = shuntingYard(expressionToken);
+		public LinkedHashMap<Double, Double> completeMap(LinkedList<Token> h){
 			LinkedHashMap<Double, Double> map = new LinkedHashMap<Double, Double>();
 			double i = 0;
-			double precision = 0.3;
+			double precision = 0.2;
 			for(double x = Xmin; x < Xmax + 1; x = x + precision){
 				x = Double.parseDouble(rounding.format(x));
 				double y = evaluate(h, x);
@@ -76,9 +46,9 @@ public class FunctionManager {
 			return newMap;
 		}
 		
-		private void verticalAsymptote(double i, double x, LinkedList<String> h, LinkedHashMap<Double, Double> map){
+		private void verticalAsymptote(double i, double x, LinkedList<Token> h, LinkedHashMap<Double, Double> map){
 			Stack<Double> xTemp = new Stack<Double>(), yTemp = new Stack<Double>();
-			double rate = 0.25;
+			double rate = 0.1;
 			double increment = rate * rightIncre, fromLeft = i - rightIncre, fromRight = i + rightIncre;
 			for(double j = x - 1; j < x; j = j + rate){
 				double y = evaluate(h, j);
@@ -98,8 +68,8 @@ public class FunctionManager {
 			}
 		}
 		
-		public LinkedList<String> tokenizer(String s){
-			LinkedList<String> done = new LinkedList<String>();
+		public LinkedList<Token> tokenizer(String s){
+			LinkedList<Token> done = new LinkedList<Token>();
 			LinkedList<Character> temp = new LinkedList<Character>();
 			for(Character c : s.toCharArray()){
 				if(Character.isDigit(c) || c == 'x'){
@@ -110,11 +80,11 @@ public class FunctionManager {
 						for(int i = 0; i < temp.size(); i++){
 							t[i] = temp.get(i);
 						}
-						done.add(new String(t));
+						done.add(new Token(new String(t)));
 						temp.clear();
-						done.add(Character.toString(c));
+						done.add(new Token(Character.toString(c)));
 					}else{
-						done.add(Character.toString(c));
+						done.add(new Token(Character.toString(c)));
 					}
 				}
 			}
@@ -123,36 +93,35 @@ public class FunctionManager {
 				for(int i = 0; i < temp.size(); i++){
 					t[i] = temp.get(i);
 				}
-				done.add(new String(t));
+				done.add(new Token(new String(t)));
 			}
 			return done;
 		}
 		
-		private LinkedList<String> shuntingYard(LinkedList<String> s){
-			Stack<operators> stack = new Stack<operators>();
-			LinkedList<String> output = new LinkedList<String>();
-			for(String c : s){
-				if(Character.isDigit(c.charAt(0)) || c.equals("x")){
-					output.add(c);
+		public LinkedList<Token> shuntingYard(LinkedList<Token> tokenList){
+			Stack<Token> stack = new Stack<Token>();
+			LinkedList<Token> output = new LinkedList<Token>();
+			for(Token t : tokenList){
+				if(t.isNumber()){
+					output.add(t);
 				}else{
-					operators temp = convert(c.charAt(0));
-					boolean isLeft = temp.getAssociativity() == -1;
-					if(temp.getPrecedense() == 2 || temp.getPrecedense() == 3 || temp.getPrecedense() == 4){
+					boolean isLeft = t.getAssociativity() == -1;
+					if(t.isOperator()){
 						if(!stack.isEmpty()){
-							while(!stack.isEmpty() && temp.getPrecedense() <= stack.peek().getPrecedense() && isLeft){
-								output.add(stack.pop().getCharacter());
+							while(!stack.isEmpty() && t.getPrecedense() <= stack.peek().getPrecedense() && isLeft){
+								output.add(stack.pop());
 							}
-							stack.push(temp);
+							stack.push(t);
 						}else{
-							stack.push(temp);
+							stack.push(t);
 						}
 					}else{
-						if(temp.equals(operators.L_BRACKET)){
-							stack.push(temp);
+						if(t.isLeftBracket()){
+							stack.push(t);
 						}else{
-							if(temp.equals(operators.R_BRACKET)){
-								while(stack.peek() != operators.L_BRACKET){
-									output.add(stack.pop().getCharacter());
+							if(t.isRightBracket()){
+								while(!stack.peek().isLeftBracket()){
+									output.add(stack.pop());
 								}
 								stack.pop();
 							}
@@ -161,50 +130,32 @@ public class FunctionManager {
 				}
 			}
 			while(!stack.isEmpty()){
-				output.add(stack.pop().getCharacter());
+				output.add(stack.pop());
 			}
 			return output;
 		}
-
-		private operators convert(Character c){
-			if(c == '+'){
-				return operators.PLUS;
-			}else if(c == '-'){
-				return operators.MINUS;
-			}else if(c == '*'){
-				return operators.MULTIPLY;
-			}else if(c == '/'){
-				return operators.DIVIDE;
-			}else if(c == ')'){
-				return operators.R_BRACKET;
-			}else if(c == '('){
-				return operators.L_BRACKET;
-			}else if(c == '^'){
-				return operators.EXP;
-			}else return null;
-		}
 		
-		private Double evaluate(LinkedList<String> s, double x){
-			LinkedList<String> temp = new LinkedList<String>(s);
-			for(String j : temp){
+		private Double evaluate(LinkedList<Token> s, double x){
+			LinkedList<Token> temp = new LinkedList<Token>(s);
+			for(Token j : temp){
 				int index = temp.indexOf(j);
-				if(j.equals("x")){
-					temp.set(index, Double.toString(x));
+				if(j.isVariable()){
+					temp.set(index, new Token(Double.toString(x)));
 				}
 			}
 			double a = 0;
 			double b = 0;
 			while(temp.size() != 1){
-			for(String f : temp){
-				if(!f.matches(".*\\d.*")){
-					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 2));
-					b = Double.parseDouble(temp.remove(temp.indexOf(f) - 1));
-					temp.set(temp.indexOf(f), Double.toString(determine(a, b, f)));
+			for(Token f : temp){
+				if(!f.isNumber()){
+					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 2).getValue());
+					b = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
+					temp.set(temp.indexOf(f), new Token(Double.toString(determine(a, b, f.getValue()))));
 					break;
 				}
 			}
 			}
-			return Double.parseDouble(temp.getFirst());
+			return Double.parseDouble(temp.getFirst().getValue());
 		}
 		
 		private double determine(double a, double b, String s){
