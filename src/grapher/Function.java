@@ -4,6 +4,8 @@ import grapher.tokens.Token;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Function {
 	private FunctionManager functionManager;
@@ -14,11 +16,28 @@ public class Function {
 	
 	public Function(String s, FunctionManager functionManager){
 		this.functionManager = functionManager;
-		s = s.replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x");
+		//edits syntax to algo readable form
+		s = checkForMultiply(s);
+		System.out.println(s);
 		this.expressionToken = this.functionManager.tokenizer(s);
 		checkForNegative();
 		this.shuntingYardForm = this.functionManager.shuntingYard(expressionToken);
 		this.yMap = this.functionManager.completeMap(shuntingYardForm);
+	}
+	
+	private String checkForMultiply(String s){
+		s = s.replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x");
+		Pattern pattern;
+		s = checkLoop(s, pattern = Pattern.compile("[)x][0-9]"), pattern.matcher(s));
+		s = checkLoop(s, pattern = Pattern.compile("[0-9][x(]"), pattern.matcher(s));
+		return s;
+	}
+	
+	private String checkLoop(String s, Pattern pattern, Matcher matcher){
+		while(matcher.find()){
+			matcher = pattern.matcher(s = new StringBuilder(s).insert(matcher.start() + 1, "*").toString());
+		}
+		return s;
 	}
 
 	private void checkForNegative() {
