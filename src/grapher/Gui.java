@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
+
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -14,11 +15,12 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class Gui {
 	private JFrame frame = new JFrame("Graph");
 	private BufferedImage graphArea = new BufferedImage(280, 250, BufferedImage.TYPE_INT_RGB);
-	private JLabel functionLabel = new JLabel("");
+	private JTextField functionLabel = new JTextField(25);
 	private FunctionManager functionManager;
 	private Graph graph;
 	private Function function;
@@ -193,7 +195,7 @@ public class Gui {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String s = functionLabel.getText();
-				functionLabel.setText(s.replace(s.substring(s.length() - 1), ""));
+				functionLabel.setText(s.substring(0, s.length() - 1));
 			}
 		}));
 		p.add(new JButton(new AbstractAction("Clear All"){

@@ -26,10 +26,10 @@ public class Function {
 	}
 	
 	private String checkForMultiply(String s){
-		s = s.replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x");
+		s = s.toLowerCase().replace(" ", "").replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x");
 		Pattern pattern;
-		s = checkLoop(s, pattern = Pattern.compile("[)x][0-9]"), pattern.matcher(s));
-		s = checkLoop(s, pattern = Pattern.compile("[0-9][x(]"), pattern.matcher(s));
+		s = checkLoop(s, pattern = Pattern.compile("[)x][0-9/.]"), pattern.matcher(s));
+		s = checkLoop(s, pattern = Pattern.compile("[0-9/.][x(]"), pattern.matcher(s));
 		return s;
 	}
 	

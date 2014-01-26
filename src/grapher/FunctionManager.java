@@ -72,7 +72,7 @@ public class FunctionManager {
 			LinkedList<Token> done = new LinkedList<Token>();
 			LinkedList<Character> temp = new LinkedList<Character>();
 			for(Character c : s.toCharArray()){
-				if(Character.isDigit(c) || c == 'x'){
+				if(Character.isDigit(c) || c == 'x' || c == '.'){
 					temp.add(c);
 				}else{
 					if(!temp.isEmpty()){
