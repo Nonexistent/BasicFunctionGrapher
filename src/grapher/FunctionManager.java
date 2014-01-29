@@ -70,71 +70,56 @@ public class FunctionManager {
 		
 		public LinkedList<Token> tokenizer(String s){
 			LinkedList<Token> done = new LinkedList<Token>();
-			LinkedList<Character> temp = new LinkedList<Character>();
-			for(Character c : s.toCharArray()){
-				if(Character.isDigit(c) || c == 'x' || c == '.'){
-					temp.add(c);
-				}else{
-					if(!temp.isEmpty()){
-						char[] t = new char[temp.size()];
-						for(int i = 0; i < temp.size(); i++){
-							t[i] = temp.get(i);
-						}
-						done.add(new Token(new String(t)));
-						temp.clear();
-						done.add(new Token(Character.toString(c)));
-					}else{
-						done.add(new Token(Character.toString(c)));
-					}
-				}
-			}
-			if(!temp.isEmpty()){
-				char[] t = new char[temp.size()];
-				for(int i = 0; i < temp.size(); i++){
-					t[i] = temp.get(i);
-				}
-				done.add(new Token(new String(t)));
+			for(String section : s.split("#")){
+				done.add(new Token(section));
 			}
 			return done;
 		}
-		
-		public LinkedList<Token> shuntingYard(LinkedList<Token> tokenList){
-			Stack<Token> stack = new Stack<Token>();
-			LinkedList<Token> output = new LinkedList<Token>();
-			for(Token t : tokenList){
-				if(t.isNumber()){
-					output.add(t);
-				}else{
+
+	public LinkedList<Token> shuntingYard(LinkedList<Token> tokenList) {
+		Stack<Token> stack = new Stack<Token>();
+		LinkedList<Token> output = new LinkedList<Token>();
+		for (Token t : tokenList) {
+			if (t.isNumber()) {
+				output.add(t);
+			} else {
+				if (t.isFunction()) {
+					stack.push(t);
+				} else {
 					boolean isLeft = t.getAssociativity() == -1;
-					if(t.isOperator()){
-						if(!stack.isEmpty()){
-							while(!stack.isEmpty() && t.getPrecedense() <= stack.peek().getPrecedense() && isLeft){
+					if (t.isOperator()) {
+						if (!stack.isEmpty()) {
+							while (!stack.isEmpty() && t.getPrecedense() <= stack.peek().getPrecedense() && isLeft) {
 								output.add(stack.pop());
 							}
 							stack.push(t);
-						}else{
+						} else {
 							stack.push(t);
 						}
-					}else{
-						if(t.isLeftBracket()){
+					} else {
+						if (t.isLeftBracket()) {
 							stack.push(t);
-						}else{
-							if(t.isRightBracket()){
-								while(!stack.peek().isLeftBracket()){
+						} else {
+							if (t.isRightBracket()) {
+								while (!stack.peek().isLeftBracket()) {
 									output.add(stack.pop());
 								}
 								stack.pop();
+								if (stack.peek().isFunction()) {
+									output.add(stack.pop());
+								}
 							}
 						}
 					}
 				}
 			}
-			while(!stack.isEmpty()){
-				output.add(stack.pop());
-			}
-			return output;
 		}
-		
+		while (!stack.isEmpty()) {
+			output.add(stack.pop());
+		}
+		return output;
+	}
+
 		private Double evaluate(LinkedList<Token> s, double x){
 			LinkedList<Token> temp = new LinkedList<Token>(s);
 			for(Token j : temp){
@@ -147,29 +132,19 @@ public class FunctionManager {
 			double b = 0;
 			while(temp.size() != 1){
 			for(Token f : temp){
-				if(!f.isNumber()){
+				if(f.isOperator()){
 					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 2).getValue());
 					b = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
-					temp.set(temp.indexOf(f), new Token(Double.toString(determine(a, b, f.getValue()))));
+					temp.set(temp.indexOf(f), new Token(Double.toString(f.getSymbol().operator(a, b))));
+					break;
+				}else if(f.isFunction()){
+					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
+					temp.set(temp.indexOf(f), new Token(Double.toString(f.getSymbol().function(a))));
 					break;
 				}
 			}
 			}
 			return Double.parseDouble(temp.getFirst().getValue());
-		}
-		
-		private double determine(double a, double b, String s){
-			if(s.equals("+")){
-				return a + b;
-			}else if(s.equals("-")){
-				return a - b;
-			}else if(s.equals("*")){
-				return a * b;
-			}else if(s.equals("/")){
-				return a / b;
-			}else if(s.equals("^")){
-				return Math.pow(a, b);
-			}else return -1;
 		}
 		
 }

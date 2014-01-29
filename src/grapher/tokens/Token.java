@@ -6,6 +6,8 @@ public class Token{
 		private int associativity;
 		private boolean isOperator;
 		private boolean isBracket;
+		private boolean isFunction;
+		private Symbols symbols;
 		
 		public Token(String s){
 			setup(s);
@@ -14,17 +16,24 @@ public class Token{
 		private void setup(String s){
 			for(Symbols o : Symbols.values()){
 				if(s.equals(o.getValue())){
+					this.symbols = o;
 					this.value = o.getValue();
 					this.precedense = o.getPrecedense();
 					this.associativity = o.getAssociativity();
 					this.isOperator = o.isOperator();
 					this.isBracket = o.isBracket();
+					this.isFunction = o.isFunction();
 					return;
 				}
 			}
 			this.value = s;
 			this.isOperator = false;
 			this.isBracket = false;
+			this.isFunction = false;
+		}
+		
+		public Symbols getSymbol(){
+			return this.symbols;
 		}
 		
 		public int getPrecedense() {
@@ -37,10 +46,6 @@ public class Token{
 		
 		public String getValue() {
 			return this.value;
-		}
-		
-		public void setValue(String s){
-			this.value = s;
 		}
 		
 		public boolean isOperator(){
@@ -65,5 +70,9 @@ public class Token{
 		
 		public boolean isVariable(){
 			return this.value.equals("x");
+		}
+		
+		public boolean isFunction(){
+			return this.isFunction;
 		}
 }
