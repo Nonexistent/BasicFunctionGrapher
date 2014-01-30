@@ -7,7 +7,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return a + b;
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -18,7 +17,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return a - b;
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -29,7 +27,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return a * b;
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -40,7 +37,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return a / b;
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -51,7 +47,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return Math.pow(a, b);
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -62,7 +57,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return 0;
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -73,7 +67,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return 0;
 		}
-
 		@Override
 		public double function(double a) {
 			return 0;
@@ -84,7 +77,6 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return 0;
 		}
-
 		@Override
 		public double function(double a) {
 			return Math.abs(a);
@@ -95,24 +87,50 @@ public enum Symbols {
 		public double operator(double a, double b) {
 			return 0;
 		}
-
 		@Override
 		public double function(double a) {
 			return Math.log10(a);
 		}
-		
 	},
 	LN(0, -1, "ln", false, true){
 		@Override
 		public double operator(double a, double b) {
 			return 0;
 		}
-
 		@Override
 		public double function(double a) {
 			return Math.log(a);
 		}
-		
+	},
+	SINE(0, -1, "sin", false, true){
+		@Override
+		public double operator(double a, double b) {
+			return 0;
+		}
+		@Override
+		public double function(double a) {
+			return Math.sin(a);
+		}
+	},
+	COSINE(0, -1, "cos", false, true){
+		@Override
+		public double operator(double a, double b) {
+			return 0;
+		}
+		@Override
+		public double function(double a) {
+			return Math.cos(a);
+		}
+	},
+	TAN(0 , -1, "tan", false, true){
+		@Override
+		public double operator(double a, double b) {
+			return 0;
+		}
+		@Override
+		public double function(double a) {
+			return Math.tan(a);
+		}
 	};
 
 	private final int precedense;

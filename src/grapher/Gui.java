@@ -24,6 +24,8 @@ public class Gui {
 	private FunctionManager functionManager;
 	private Graph graph;
 	private Function function;
+	private String[] functionArray = {"abs()", "log()", "ln()", "sin()", "cos()", "tan()"};
+	private String[] operatorArray = {"+", "-", "*", "/", "^", "x", "(", ")"};
 	
 	public Gui(){
 		this.graph = new Graph(this);
@@ -67,124 +69,19 @@ public class Gui {
 		return p;
 	}
 	
-	@SuppressWarnings("serial")
 	private Component numbers(){
-		JPanel inner = new JPanel(new GridLayout(4, 3, 3, 3));//row, colomn
-		inner.add(new JButton(new AbstractAction(" 1 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "1");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 2 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "2");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 3 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "3");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 4 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "4");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 5 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "5");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 6 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "6");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 7 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "7");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 8 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "8");
-			}
-		}));
-		inner.add(new JButton(new AbstractAction(" 9 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "9");
-			}
-		}));
-		inner.add(new JPanel());
-		inner.add(new JButton(new AbstractAction(" 0 "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "0");
-			}
-		}));
+		JPanel inner = new JPanel(new GridLayout(3, 2, 3, 3));//row, colomn
+		for(String s : functionArray){
+			inner.add(new Button(this.functionLabel, s));
+		}
 		return inner;
 	}
 	
-	@SuppressWarnings("serial")
 	private Component operators(){
 		JPanel p = new JPanel(new GridLayout(4,2,3,3));
-		p.add(new JButton(new AbstractAction(" + "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "+");
-			}
-		}));
-		p.add(new JButton(new AbstractAction(" - "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "-");
-			}
-		}));
-		p.add(new JButton(new AbstractAction(" * "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "*");
-			}
-		}));
-		p.add(new JButton(new AbstractAction(" / "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "/");
-			}
-		}));
-		p.add(new JButton(new AbstractAction(" ^ "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "^");
-			}
-		}));
-		p.add(new JButton(new AbstractAction("X"){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "x");
-			}
-		}));
-		p.add(new JButton(new AbstractAction("("){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + "(");
-			}
-		}));
-		p.add(new JButton(new AbstractAction(" ) "){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText(functionLabel.getText() + ")");
-			}
-		}));
+		for(String s : operatorArray){
+			p.add(new Button(this.functionLabel, s));
+		}
 		return p;
 	}
 	

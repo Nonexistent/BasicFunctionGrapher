@@ -18,7 +18,8 @@ public class Function {
 		this.functionManager = functionManager;
 		//edits syntax to algo readable form
 		s = checkForMultiply(s);
-		s = insertHashtags(s);
+		s = insertHash(s);
+		System.out.println(s);
 		this.expressionToken = this.functionManager.tokenizer(s);
 		checkForNegative();
 		this.shuntingYardForm = this.functionManager.shuntingYard(expressionToken);
@@ -27,18 +28,19 @@ public class Function {
 	
 	private String checkForMultiply(String s){
 		s = s.toLowerCase().replace(" ", "");
-		s = s.replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x").replace("xln", "x*ln");
+		s = s.replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x");
 		Pattern pattern;
 		s = checkLoop(s, pattern = Pattern.compile("[)x][0-9\\.]"), pattern.matcher(s), "*");
 		s = checkLoop(s, pattern = Pattern.compile("[0-9\\.][x(]"), pattern.matcher(s), "*");
 		s = checkLoop(s, pattern = Pattern.compile("xx"), pattern.matcher(s), "*");
-		return checkLoop(s, pattern = Pattern.compile("[.[^\\*]][a-z&&[^x]][a-z&&[^x]][a-z&&[^x]]"), pattern.matcher(s), "*");
+		s = checkLoop(s, pattern = Pattern.compile("[[0-9]|x|\\)]ln"), pattern.matcher(s), "*");
+		return checkLoop(s, pattern = Pattern.compile("[[0-9]|x|\\)][a-z&&[^x]][a-z&&[^x]][a-z&&[^x]]"), pattern.matcher(s), "*");
 	}
 	
-	private String insertHashtags(String s){
+	private String insertHash(String s){
 		Pattern pattern;
-		s =  checkLoop(s, pattern = Pattern.compile("[x\\(\\)\\+\\*\\^\\-][.[^#]]"), pattern.matcher(s), "#");
-		return checkLoop(s, pattern = Pattern.compile("[.[^#]][x\\(\\)\\+\\*\\^\\-]"), pattern.matcher(s), "#");
+		s =  checkLoop(s, pattern = Pattern.compile("[x|\\(|\\)|\\+|\\*|\\^|\\-|/][.[^#]]"), pattern.matcher(s), "#");
+		return checkLoop(s, pattern = Pattern.compile("[.[^#]][x|\\(|\\)|\\+|\\*|\\^|\\-|/]"), pattern.matcher(s), "#");
 	}
 	
 	private String checkLoop(String s, Pattern pattern, Matcher matcher, String replacement){

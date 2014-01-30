@@ -1,5 +1,7 @@
 package grapher;
 
+import javax.swing.UIManager;
+
 public class Main {
 	
 	/*
@@ -10,6 +12,11 @@ public class Main {
 	 */
 	
 	public static void main(String[] args){
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e){
+			//DO.NOTHING.....!
+		}
 		Gui g = new Gui();
 		g.go();
 	}

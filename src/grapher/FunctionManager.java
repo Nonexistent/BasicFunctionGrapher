@@ -14,67 +14,70 @@ public class FunctionManager {
 	private double Xmax;
 	private double Xmin;
 	private DecimalFormat rounding = new DecimalFormat("#.#");
-	
-		public FunctionManager(Graph graph){
-			this.graph = graph;
-			this.rightIncre = graph.getRight();
-			this.Xmax = graph.getXmax();
-			this.Xmin = graph.getXmin();
-		}
-		
-		public LinkedHashMap<Double, Double> completeMap(LinkedList<Token> h){
-			LinkedHashMap<Double, Double> map = new LinkedHashMap<Double, Double>();
-			double i = 0;
-			double precision = 0.2;
-			for(double x = Xmin; x < Xmax + 1; x = x + precision){
-				x = Double.parseDouble(rounding.format(x));
-				double y = evaluate(h, x);
-				System.out.println("x: " +x + " y: "+ y);
-				if(y != Double.POSITIVE_INFINITY && y != Double.NEGATIVE_INFINITY){
+
+	public FunctionManager(Graph graph) {
+		this.graph = graph;
+		this.rightIncre = graph.getRight();
+		this.Xmax = graph.getXmax();
+		this.Xmin = graph.getXmin();
+	}
+
+	public LinkedHashMap<Double, Double> completeMap(LinkedList<Token> h) {
+		LinkedHashMap<Double, Double> map = new LinkedHashMap<Double, Double>();
+		double i = 0;
+		double precision = 0.2;
+		for (double x = Xmin; x < Xmax + 1; x = x + precision) {
+			x = Double.parseDouble(rounding.format(x));
+			double y = evaluate(h, x);
+			System.out.println("x: " + x + " y: " + y);
+			if (y != Double.POSITIVE_INFINITY && y != Double.NEGATIVE_INFINITY) {
 				map.put(i, graph.functionToImage(y));
-				}else{
-					verticalAsymptote(i, x, h, map);
-				}
-				i = i + rightIncre * precision;
+			} else {
+				verticalAsymptote(i, x, h, map);
 			}
-			LinkedList<Double> temp = new LinkedList<Double>(map.keySet());
-			LinkedHashMap<Double, Double> newMap = new LinkedHashMap<Double, Double>();
-			Collections.sort(temp);
-			for(Double j : temp){
-				newMap.put(j, map.get(j));
-			}
-			return newMap;
+			i = i + rightIncre * precision;
 		}
-		
-		private void verticalAsymptote(double i, double x, LinkedList<Token> h, LinkedHashMap<Double, Double> map){
-			Stack<Double> xTemp = new Stack<Double>(), yTemp = new Stack<Double>();
-			double rate = 0.1;
-			double increment = rate * rightIncre, fromLeft = i - rightIncre, fromRight = i + rightIncre;
-			for(double j = x - 1; j < x; j = j + rate){
-				double y = evaluate(h, j);
-				System.out.println("from left: x: "+j+" y: "+y);
-				map.put(fromLeft, graph.functionToImage(y));
-				fromLeft = fromLeft + increment;
-			}
-			for(double j = x + 1; j > x; j = j - rate){
-				double y = evaluate(h, j);
-				System.out.println("from right: x: "+j+" y: "+y);
-				xTemp.push(fromRight); yTemp.push(graph.functionToImage(y));
-				fromRight = fromRight - increment;
-			}
-			map.put(i, Double.MAX_VALUE);
-			for(int k = 0; k < xTemp.size(); k++){
-				map.put(xTemp.pop(), yTemp.pop());
-			}
+		LinkedList<Double> temp = new LinkedList<Double>(map.keySet());
+		LinkedHashMap<Double, Double> newMap = new LinkedHashMap<Double, Double>();
+		Collections.sort(temp);
+		for (Double j : temp) {
+			newMap.put(j, map.get(j));
 		}
-		
-		public LinkedList<Token> tokenizer(String s){
-			LinkedList<Token> done = new LinkedList<Token>();
-			for(String section : s.split("#")){
-				done.add(new Token(section));
-			}
-			return done;
+		return newMap;
+	}
+
+	private void verticalAsymptote(double i, double x, LinkedList<Token> h,
+			LinkedHashMap<Double, Double> map) {
+		Stack<Double> xTemp = new Stack<Double>(), yTemp = new Stack<Double>();
+		double rate = 0.1;
+		double increment = rate * rightIncre, fromLeft = i - rightIncre, fromRight = i
+				+ rightIncre;
+		for (double j = x - 1; j < x; j = j + rate) {
+			double y = evaluate(h, j);
+			System.out.println("from left: x: " + j + " y: " + y);
+			map.put(fromLeft, graph.functionToImage(y));
+			fromLeft = fromLeft + increment;
 		}
+		for (double j = x + 1; j > x; j = j - rate) {
+			double y = evaluate(h, j);
+			System.out.println("from right: x: " + j + " y: " + y);
+			xTemp.push(fromRight);
+			yTemp.push(graph.functionToImage(y));
+			fromRight = fromRight - increment;
+		}
+		map.put(i, Double.MAX_VALUE);
+		for (int k = 0; k < xTemp.size(); k++) {
+			map.put(xTemp.pop(), yTemp.pop());
+		}
+	}
+
+	public LinkedList<Token> tokenizer(String s) {
+		LinkedList<Token> done = new LinkedList<Token>();
+		for (String section : s.split("#")) {
+			done.add(new Token(section));
+		}
+		return done;
+	}
 
 	public LinkedList<Token> shuntingYard(LinkedList<Token> tokenList) {
 		Stack<Token> stack = new Stack<Token>();
@@ -120,31 +123,40 @@ public class FunctionManager {
 		return output;
 	}
 
-		private Double evaluate(LinkedList<Token> s, double x){
-			LinkedList<Token> temp = new LinkedList<Token>(s);
-			for(Token j : temp){
-				int index = temp.indexOf(j);
-				if(j.isVariable()){
-					temp.set(index, new Token(Double.toString(x)));
-				}
+	private Double evaluate(LinkedList<Token> s, double x) {
+		LinkedList<Token> temp = new LinkedList<Token>(s);
+		for (Token j : temp) {
+			int index = temp.indexOf(j);
+			if (j.isVariable()) {
+				temp.set(index, new Token(Double.toString(x)));
 			}
-			double a = 0;
-			double b = 0;
-			while(temp.size() != 1){
-			for(Token f : temp){
-				if(f.isOperator()){
-					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 2).getValue());
-					b = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
-					temp.set(temp.indexOf(f), new Token(Double.toString(f.getSymbol().operator(a, b))));
-					break;
-				}else if(f.isFunction()){
-					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
-					temp.set(temp.indexOf(f), new Token(Double.toString(f.getSymbol().function(a))));
-					break;
-				}
-			}
-			}
-			return Double.parseDouble(temp.getFirst().getValue());
 		}
-		
+		double a = 0;
+		double b = 0;
+		while (temp.size() != 1) {
+			for (Token f : temp) {
+				if (f.isOperator()) {
+					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 2)
+							.getValue());
+					b = Double.parseDouble(temp.remove(temp.indexOf(f) - 1)
+							.getValue());
+					temp.set(
+							temp.indexOf(f),
+							new Token(Double.toString(f.getSymbol().operator(a,
+									b))));
+					break;
+				} else if (f.isFunction()) {
+					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 1)
+							.getValue());
+					temp.set(
+							temp.indexOf(f),
+							new Token(Double
+									.toString(f.getSymbol().function(a))));
+					break;
+				}
+			}
+		}
+		return Double.parseDouble(temp.getFirst().getValue());
+	}
+
 }
