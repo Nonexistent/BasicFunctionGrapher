@@ -109,7 +109,7 @@ public enum Symbols {
 		}
 		@Override
 		public double function(double a) {
-			return Math.sin(a);
+			return Math.abs(Math.sin(a)) < 0.05 ? 0.0 : Math.sin(a);
 		}
 	},
 	COSINE(0, -1, "cos", false, true){
@@ -119,7 +119,7 @@ public enum Symbols {
 		}
 		@Override
 		public double function(double a) {
-			return Math.cos(a);
+			return Math.abs(Math.cos(a)) < 0.05 ? 0.0 : Math.cos(a);
 		}
 	},
 	TAN(0 , -1, "tan", false, true){
@@ -129,7 +129,7 @@ public enum Symbols {
 		}
 		@Override
 		public double function(double a) {
-			return Math.tan(a);
+			return Math.abs(Math.cos(a)) < 0.05 ? Double.POSITIVE_INFINITY : Math.abs(Math.sin(a)) < 0.05 ? 0.0 : Math.tan(a);
 		}
 	};
 
