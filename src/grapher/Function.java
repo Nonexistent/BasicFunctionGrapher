@@ -2,7 +2,6 @@ package grapher;
 
 import grapher.tokens.Token;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,8 +9,8 @@ import java.util.regex.Pattern;
 public class Function {
 	private FunctionManager functionManager;
 	private LinkedList<Token> expressionToken;
-	private LinkedList<Token> shuntingYardForm;
-	private LinkedHashMap<Double, Double> yMap;
+	private LinkedList<Token> reversePolish;
+	private double[][] xyValues;
 	//private String name; //f1, f2, f3.....etc
 	
 	public Function(String s, FunctionManager functionManager){
@@ -22,8 +21,8 @@ public class Function {
 		System.out.println(s);
 		this.expressionToken = this.functionManager.tokenizer(s);
 		checkForNegative();
-		this.shuntingYardForm = this.functionManager.shuntingYard(expressionToken);
-		this.yMap = this.functionManager.completeMap(shuntingYardForm);
+		this.reversePolish = this.functionManager.shuntingYard(expressionToken);
+		this.xyValues = this.functionManager.completeXYValues(reversePolish);
 	}
 	
 	private String checkForMultiply(String s){
@@ -81,8 +80,7 @@ public class Function {
 		}
 	}
 	
-	public LinkedHashMap<Double, Double> getMap(){
-		return this.yMap;
+	public double[][] getxyValues(){
+		return this.xyValues;
 	}
-	
 }

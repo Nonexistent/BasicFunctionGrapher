@@ -88,11 +88,10 @@ public class Gui {
 	@SuppressWarnings("serial")
 	private Component func(){
 		JPanel p = new JPanel(new GridLayout(4,2,3,3));
-		p.add(new JButton(new AbstractAction("Back"){
+		p.add(new JButton(new AbstractAction("Settings"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String s = functionLabel.getText();
-				functionLabel.setText(s.substring(0, s.length() - 1));
+				settings();
 			}
 		}));
 		p.add(new JButton(new AbstractAction("Clear All"){
@@ -116,7 +115,7 @@ public class Gui {
 			public void actionPerformed(ActionEvent arg0) {
 				if(!functionLabel.getText().equals("")){
 				function = new Function(functionLabel.getText(), functionManager);
-				graph.plot(function.getMap());
+				graph.plot(function.getxyValues());
 				frame.repaint();
 				}
 			}
@@ -130,6 +129,48 @@ public class Gui {
 		p.add(operators());
 		p.add(func());
 		return p;
+	}
+	
+	@SuppressWarnings("serial")
+	private Component settings(){
+		final JFrame f = new JFrame("Settings");
+		JPanel top = new JPanel();
+		JPanel middle = new JPanel();
+		JPanel bottom = new JPanel();
+		JPanel x = new JPanel();
+		JPanel y = new JPanel();
+		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		f.getContentPane().setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
+		f.setSize(240, 160);
+		final JTextField xMin = new JTextField(Double.toString(graph.getXmin()), 8);
+		final JTextField xMax = new JTextField(Double.toString(graph.getXmax()), 8);
+		final JTextField yMin = new JTextField(Double.toString(graph.getYmin()), 8);
+		final JTextField yMax = new JTextField(Double.toString(graph.getYmax()), 8);
+		x.add(new JLabel("xMin:")); x.add(xMin); x.add(new JLabel("xMax:")); x.add(xMax); 
+		y.add(new JLabel("yMin:")); y.add(yMin); y.add(new JLabel("yMax:")); y.add(yMax);
+		top.add(x); middle.add(y);
+		bottom.add(new JButton(new AbstractAction("Ok"){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				graph.setXmin(Double.parseDouble(xMin.getText()));
+				graph.setXmax(Double.parseDouble(xMax.getText()));
+				graph.setYmin(Double.parseDouble(yMin.getText()));
+				graph.setYmax(Double.parseDouble(yMax.getText()));
+				clearGraph();
+				graph.init();
+				functionManager.updateValues();
+				function = new Function(functionLabel.getText(), functionManager);
+				graph.plot(function.getxyValues()); 
+				frame.repaint();
+				f.dispose();
+			}
+		}));
+		f.getContentPane().add(top);
+		f.getContentPane().add(middle);
+		f.getContentPane().add(bottom);
+		f.setLocationRelativeTo(null);
+		f.setVisible(true);
+		return f;
 	}
 	
 	public BufferedImage getGraphArea(){

@@ -2,74 +2,35 @@ package grapher;
 
 import grapher.tokens.Token;
 
-import java.text.DecimalFormat;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Stack;
 
 public class FunctionManager {
 	private Graph graph;
-	private double rightIncre;
-	private double Xmax;
+	private double xImageIncrement;
 	private double Xmin;
-	private DecimalFormat rounding = new DecimalFormat("#.#");
+	private int xImageLength;
 
 	public FunctionManager(Graph graph) {
 		this.graph = graph;
-		this.rightIncre = graph.getRight();
-		this.Xmax = graph.getXmax();
+		this.xImageIncrement = graph.getxImageIncrement();
 		this.Xmin = graph.getXmin();
+		this.xImageLength = graph.getxImageLength();
 	}
 
-	public LinkedHashMap<Double, Double> completeMap(LinkedList<Token> h) {
-		LinkedHashMap<Double, Double> map = new LinkedHashMap<Double, Double>();
-		double i = 0;
-		double precision = 0.1;
-		for (double x = Xmin; x < Xmax + 1; x = x + precision) {
-			x = Double.parseDouble(rounding.format(x));
-			double y = evaluate(h, x);
-			if (y != Double.POSITIVE_INFINITY && y != Double.NEGATIVE_INFINITY) {
-				map.put(i, graph.functionToImage(y));
-				System.out.println("x: "+ x + " " + "y: " + y);
-			} else {
-				verticalAsymptote(i, x, h, map);
-			}
-			i = i + rightIncre * precision;
+	public double[][] completeXYValues(LinkedList<Token> tokenList){
+		//index 0 for x, index 1 for y
+		double[][] xyValues = new double[2][xImageLength];
+		for(int i = 0; i < xImageLength; i++){
+			double y = evaluate(tokenList, (i/xImageIncrement) + Xmin);
+			xyValues[0][i] = i;
+			//System.out.println("x: " + ((i/xImageIncrement) + Xmin) + " y: " + y);
+			xyValues[1][i] = Double.POSITIVE_INFINITY == y ? Double.MIN_EXPONENT
+					: Double.NEGATIVE_INFINITY == y ? Double.MAX_EXPONENT : graph.functionToImage(y);
 		}
-		LinkedList<Double> temp = new LinkedList<Double>(map.keySet());
-		LinkedHashMap<Double, Double> newMap = new LinkedHashMap<Double, Double>();
-		Collections.sort(temp);
-		for (Double j : temp) {
-			newMap.put(j, map.get(j));
-		}
-		return newMap;
+		return xyValues;
 	}
-
-	private void verticalAsymptote(double i, double x, LinkedList<Token> h, LinkedHashMap<Double, Double> map) {
-		DecimalFormat r = new DecimalFormat("#.##");
-		Stack<Double> xTemp = new Stack<Double>(), yTemp = new Stack<Double>();
-		double rate = 0.05;
-		double increment = rate * rightIncre, fromLeft = i - rightIncre, fromRight = i + rightIncre;
-		for (double j = x - 1; j < x; j = j + rate) {
-			double y = evaluate(h, Double.parseDouble(r.format(j)));
-			map.put(fromLeft, graph.functionToImage(y));
-			System.out.println("From Left - x: " + j + " " + "y: " + y);
-			fromLeft = fromLeft + increment;
-		}
-		for (double j = x + 1; j > x; j = j - rate) {
-			double y = evaluate(h, Double.parseDouble(r.format(j)));
-			xTemp.push(fromRight);
-			yTemp.push(graph.functionToImage(y));
-			System.out.println("From Right - x: " + j + " " + "y: " + y);
-			fromRight = fromRight - increment;
-		}
-		map.put(i, Double.MAX_VALUE);
-		for (int k = 0; k < xTemp.size(); k++) {
-			map.put(xTemp.pop(), yTemp.pop());
-		}
-	}
-
+	
 	public LinkedList<Token> tokenizer(String s) {
 		LinkedList<Token> done = new LinkedList<Token>();
 		for (String section : s.split("#")) {
@@ -152,5 +113,9 @@ public class FunctionManager {
 		}
 		return Double.parseDouble(temp.getFirst().getValue());
 	}
-
+	
+	public void updateValues(){
+		this.Xmin = graph.getXmin();
+		this.xImageIncrement = graph.getxImageIncrement();
+	}
 }
