@@ -59,10 +59,10 @@ public class Graph {
 		}
 	}
 
-	public void plot(double[][] xyValues) {
+	public synchronized void plot(double[][] xyValues, Color color) {
 		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 		g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-		g.setColor(Color.RED);
+		g.setColor(color);
 		line.moveTo(xyValues[0][0], xyValues[1][0]);
 		for(int i = 0; i < xImageLength; i++){
 			if(xyValues[1][i] != Double.MAX_EXPONENT && xyValues[1][i] != Double.MIN_EXPONENT){
@@ -80,13 +80,6 @@ public class Graph {
 		}
 		g.draw(line);
 		line.reset();
-	}
-
-	public double functionToImage(double input) {
-		if (input > 0) {
-			return yImageOrigin - (yImageIncrement * input);
-		}
-		return yImageOrigin + (yImageIncrement * Math.abs(input));
 	}
 	
 	public double getxImageIncrement() {
@@ -127,6 +120,14 @@ public class Graph {
 	
 	public int getxImageLength(){
 		return this.xImageLength;
+	}
+	
+	public double getYImageOrigin(){
+		return this.yImageOrigin;
+	}
+	
+	public double getYImageIncrement(){
+		return this.yImageIncrement;
 	}
 
 }

@@ -2,13 +2,13 @@ package grapher;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -19,11 +19,11 @@ import javax.swing.JTextField;
 
 public class Gui {
 	private JFrame frame = new JFrame("Graph");
+	private JPanel functionPanel = new JPanel();
 	private BufferedImage graphArea = new BufferedImage(280, 250, BufferedImage.TYPE_INT_RGB);
-	private JTextField functionLabel = new JTextField(25);
 	private FunctionManager functionManager;
 	private Graph graph;
-	private Function function;
+	private InputForm form = new InputForm();
 	private String[] functionArray = {"abs()", "log()", "ln()", "sin()", "cos()", "tan()"};
 	private String[] operatorArray = {"+", "-", "*", "/", "^", "x", "(", ")"};
 	
@@ -37,14 +37,20 @@ public class Gui {
 	}
 	
 	public void go(){
+		JPanel mainPanel = new JPanel();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 		frame.setSize(420, 500);
-		frame.getContentPane().add(graph());
+		frame.getContentPane().setLayout(new FlowLayout());
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+		mainPanel.add(graph());
 		createFM();
-		frame.getContentPane().add(label());
-		frame.getContentPane().add(buttons());
+		mainPanel.add(buttons());
+		frame.getContentPane().add(functionPanel());
+		functionPanel.setVisible(false);
+		frame.getContentPane().add(mainPanel);
 		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
+		frame.pack();
 		frame.setVisible(true);
 	}
 	
@@ -61,18 +67,18 @@ public class Gui {
 		return p;
 	}
 	
-	private Component label(){
-		JPanel p = new JPanel();
-		p.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		p.add(new JLabel("f(x) = "));
-		p.add(functionLabel);
-		return p;
+	private Component functionPanel(){
+		functionPanel.setLayout(new BoxLayout(functionPanel, BoxLayout.Y_AXIS));
+		for(JPanel o : form.getFormList()){
+			functionPanel.add(o);
+		}
+		return functionPanel;
 	}
 	
 	private Component numbers(){
 		JPanel inner = new JPanel(new GridLayout(3, 2, 3, 3));//row, colomn
 		for(String s : functionArray){
-			inner.add(new Button(this.functionLabel, s));
+			inner.add(new Button(frame, s));
 		}
 		return inner;
 	}
@@ -80,7 +86,7 @@ public class Gui {
 	private Component operators(){
 		JPanel p = new JPanel(new GridLayout(4,2,3,3));
 		for(String s : operatorArray){
-			p.add(new Button(this.functionLabel, s));
+			p.add(new Button(frame, s));
 		}
 		return p;
 	}
@@ -97,27 +103,32 @@ public class Gui {
 		p.add(new JButton(new AbstractAction("Clear All"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText("");
 				clearGraph();
+				for(JPanel p : form.getFormList()){
+					((JTextField) p.getComponent(2)).setText("");
+				}
 				graph.init();
 				frame.repaint();
 			}
 		}));
-		p.add(new JButton(new AbstractAction("Clear Expression"){
+		p.add(new JButton(new AbstractAction("Show Functions"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				functionLabel.setText("");
-				frame.repaint();
+				if(functionPanel.isVisible()){
+					this.putValue(NAME, "Show Functions");
+					functionPanel.setVisible(!functionPanel.isVisible());
+				}else{
+					this.putValue(NAME, "Hide Functions");
+					functionPanel.setVisible(!functionPanel.isVisible());
+				}
+				frame.pack();
 			}
 		}));
 		p.add(new JButton(new AbstractAction("Graph"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(!functionLabel.getText().equals("")){
-				function = new Function(functionLabel.getText(), functionManager);
-				graph.plot(function.getxyValues());
+				functionManager.completeFunctions(form, frame);
 				frame.repaint();
-				}
 			}
 		}));
 		return p;
@@ -159,8 +170,7 @@ public class Gui {
 				clearGraph();
 				graph.init();
 				functionManager.updateValues();
-				function = new Function(functionLabel.getText(), functionManager);
-				graph.plot(function.getxyValues()); 
+				functionManager.completeFunctions(form, frame);
 				frame.repaint();
 				f.dispose();
 			}
