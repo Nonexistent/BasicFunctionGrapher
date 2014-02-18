@@ -20,10 +20,10 @@ public class Function {
 		this.functionManager = functionManager;
 		//edits syntax to algo readable form
 		expression = checkForMultiply(expression);
+		expression = checkForNegative(expression);
 		expression = insertHash(expression);
 		System.out.println(expression);
 		this.expressionToken = tokenizer(expression);
-		checkForNegative();
 		this.reversePolish = shuntingYard(expressionToken);
 		this.xyValues = completeXYValues(reversePolish);
 		graph.plot(xyValues, color);
@@ -33,17 +33,9 @@ public class Function {
 		s = s.toLowerCase().replace(" ", "");
 		s = s.replace(")(", ")*(").replace("x(", "x*(").replace(")x", ")*x");
 		Pattern pattern;
-		s = checkLoop(s, pattern = Pattern.compile("[)x][0-9\\.]"), pattern.matcher(s), "*");
-		s = checkLoop(s, pattern = Pattern.compile("[0-9\\.][x(]"), pattern.matcher(s), "*");
+		s = checkLoop(s, pattern = Pattern.compile("[0-9\\.][x(]|[x)][0-9\\.]"), pattern.matcher(s), "*");
 		s = checkLoop(s, pattern = Pattern.compile("xx"), pattern.matcher(s), "*");
-		s = checkLoop(s, pattern = Pattern.compile("[[0-9]|x|\\)]ln"), pattern.matcher(s), "*");
-		return checkLoop(s, pattern = Pattern.compile("[[0-9]|x|\\)][a-z&&[^x]][a-z&&[^x]][a-z&&[^x]]"), pattern.matcher(s), "*");
-	}
-	
-	private String insertHash(String s){
-		Pattern pattern;
-		s =  checkLoop(s, pattern = Pattern.compile("[x|\\(|\\)|\\+|\\*|\\^|\\-|/][.[^#]]"), pattern.matcher(s), "#");
-		return checkLoop(s, pattern = Pattern.compile("[.[^#]][x|\\(|\\)|\\+|\\*|\\^|\\-|/]"), pattern.matcher(s), "#");
+		return checkLoop(s, pattern = Pattern.compile("[^*&&x)[0-9]][a-z&&[^x]]+"), pattern.matcher(s), "*");
 	}
 	
 	private String checkLoop(String s, Pattern pattern, Matcher matcher, String replacement){
@@ -53,35 +45,22 @@ public class Function {
 		return s;
 	}
 
-	private void checkForNegative() {
-		int negativeCount = 0;
-		for (int i = 0; i < expressionToken.size(); i++) {
-			if (expressionToken.get(i).isMinusSign()) {
-				if (i == 0 || expressionToken.get(i - 1).isOperator()) {
-					negativeCount++;
-				}
-			}
+	private String checkForNegative(String s) {
+		Pattern pattern;
+		s = negativeLoop(s, pattern = Pattern.compile("(?<=[-+*/(^]|^)-[0-9x\\.]+"), pattern.matcher(s), "(0", ")");
+		return negativeLoop(s, pattern = Pattern.compile("-(?=[(])"), pattern.matcher(s), "(0", "1)*");
+	}
+	
+	private  String negativeLoop(String s, Pattern pattern, Matcher matcher, String start, String end){
+		while(matcher.find()){
+			matcher = pattern.matcher(s = new StringBuilder(s).insert(matcher.end(), end).insert(matcher.start(), start).toString());
 		}
-		for (int j = 0; j < negativeCount; j++) {
-			for (int i = 0; i < expressionToken.size(); i++) {
-				if (expressionToken.get(i).isMinusSign()) {
-					if(i == 0 && expressionToken.get(i + 1).isLeftBracket()){
-						expressionToken.add(i + 1, new Token("*"));
-						expressionToken.add(i + 1, new Token(")"));
-						expressionToken.add(i + 1, new Token("1"));
-						expressionToken.add(i, new Token("0"));
-						expressionToken.add(i, new Token("("));
-						break;
-					}
-					else if ((i == 0 && !expressionToken.get(i + 1).isLeftBracket()) || expressionToken.get(i - 1).isOperator()) {
-						expressionToken.add(i + 2, new Token(")"));
-						expressionToken.add(i, new Token("0"));
-						expressionToken.add(i, new Token("("));
-						break;
-					}
-				}
-			}
-		}
+		return s;
+	}
+	
+	private String insertHash(String s){
+		Pattern pattern;
+		return checkLoop(s, pattern = Pattern.compile("[-x+/*)(^][^#]|[^#][-x+/*)(^]"), pattern.matcher(s), "#");
 	}
 	
 	public double[][] completeXYValues(LinkedList<Token> tokenList){
