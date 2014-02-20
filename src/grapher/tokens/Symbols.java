@@ -4,7 +4,7 @@ public enum Symbols {
 	// 1 for right, -1 for left
 	PLUS(2, -1, "+", true, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return a + b;
 		}
 		@Override
@@ -14,7 +14,7 @@ public enum Symbols {
 	}, 
 	MINUS(2, -1, "-", true, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return a - b;
 		}
 		@Override
@@ -24,7 +24,7 @@ public enum Symbols {
 	}, 
 	MULTIPLY(3, -1, "*", true, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return a * b;
 		}
 		@Override
@@ -34,7 +34,7 @@ public enum Symbols {
 	}, 
 	DIVIDE(3, -1, "/", true, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return a / b;
 		}
 		@Override
@@ -44,7 +44,7 @@ public enum Symbols {
 	}, 
 	EXP(4, 1, "^", true, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return Math.pow(a, b);
 		}
 		@Override
@@ -54,7 +54,7 @@ public enum Symbols {
 	}, 
 	L_BRACKET(1, 0, "(", false, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -64,7 +64,7 @@ public enum Symbols {
 	}, 
 	R_BRACKET(1, 0, ")", false, false) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -74,7 +74,7 @@ public enum Symbols {
 	},
 	ABSOLUTE(0, -1, "abs", false, true) {
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -84,7 +84,7 @@ public enum Symbols {
 	},
 	LOG(0, -1, "log", false, true){
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -94,7 +94,7 @@ public enum Symbols {
 	},
 	LN(0, -1, "ln", false, true){
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -104,7 +104,7 @@ public enum Symbols {
 	},
 	SINE(0, -1, "sin", false, true){
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -114,7 +114,7 @@ public enum Symbols {
 	},
 	COSINE(0, -1, "cos", false, true){
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -124,7 +124,7 @@ public enum Symbols {
 	},
 	TAN(0 , -1, "tan", false, true){
 		@Override
-		public double operator(double a, double b) {
+		public double operator(double b, double a) {
 			return 0;
 		}
 		@Override
@@ -172,7 +172,7 @@ public enum Symbols {
 		return this.isFunction;
 	}
 	
-	public abstract double operator(double a, double b);
+	public abstract double operator(double b, double a);
 	
 	public abstract double function(double a);
 }

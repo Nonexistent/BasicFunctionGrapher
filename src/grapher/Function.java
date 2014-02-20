@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class Function {
 	private FunctionManager functionManager;
-	private LinkedList<Token> expressionToken;
+	private LinkedList<Token> expressionToken = new LinkedList<Token>();
 	private LinkedList<Token> reversePolish;
 	private double[][] xyValues;
 	private String name; //f1, f2, f3.....etc
@@ -23,7 +23,7 @@ public class Function {
 		expression = checkForNegative(expression);
 		expression = insertHash(expression);
 		System.out.println(expression);
-		this.expressionToken = tokenizer(expression);
+		tokenizer(expression);
 		this.reversePolish = shuntingYard(expressionToken);
 		this.xyValues = completeXYValues(reversePolish);
 		graph.plot(xyValues, color);
@@ -48,7 +48,7 @@ public class Function {
 	private String checkForNegative(String s) {
 		Pattern pattern;
 		s = negativeLoop(s, pattern = Pattern.compile("(?<=[-+*/(^]|^)-[0-9x\\.]+"), pattern.matcher(s), "(0", ")");
-		return negativeLoop(s, pattern = Pattern.compile("-(?=[(])"), pattern.matcher(s), "(0", "1)*");
+		return negativeLoop(s, pattern = Pattern.compile("(?<=[^0-9x)\\.])-(?=[(]|[a-z&&[^x]])"), pattern.matcher(s), "(0", "1)*");
 	}
 	
 	private  String negativeLoop(String s, Pattern pattern, Matcher matcher, String start, String end){
@@ -72,23 +72,21 @@ public class Function {
 			//System.out.println("x: " + ((i/functionManager.xImageIncrement) + functionManager.Xmin) + " y: " + y);
 			xyValues[1][i] = Double.POSITIVE_INFINITY == y ? Double.MIN_EXPONENT
 					: Double.NEGATIVE_INFINITY == y ? Double.MAX_EXPONENT : functionToImage(y);
+			
 		}
 		return xyValues;
 	}
 
 	public double functionToImage(double input) {
-		if (input > 0) {
-			return functionManager.yImageOrigin - (functionManager.yImageIncrement * input);
-		}
-		return functionManager.yImageOrigin + (functionManager.yImageIncrement * Math.abs(input));
+		return input > 0 ?
+			functionManager.yImageOrigin - (functionManager.yImageIncrement * input) :
+		 functionManager.yImageOrigin + (functionManager.yImageIncrement * Math.abs(input));
 	}
 	
-	public LinkedList<Token> tokenizer(String s) {
-		LinkedList<Token> done = new LinkedList<Token>();
+	public void tokenizer(String s) {
 		for (String section : s.split("#")) {
-			done.add(new Token(section));
+			expressionToken.add(new Token(section));
 		}
-		return done;
 	}
 
 	public LinkedList<Token> shuntingYard(LinkedList<Token> tokenList) {
@@ -138,31 +136,18 @@ public class Function {
 	private Double evaluate(LinkedList<Token> s, double x) {
 		LinkedList<Token> temp = new LinkedList<Token>(s);
 		for (Token j : temp) {
-			int index = temp.indexOf(j);
 			if (j.isVariable()) {
-				temp.set(index, new Token(Double.toString(x)));
+				temp.set(temp.indexOf(j), new Token(Double.toString(x)));
 			}
 		}
-		double a = 0;
-		double b = 0;
-		while (temp.size() != 1) {
-			for (Token f : temp) {
-				if (f.isOperator()) {
-					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 2).getValue());
-					b = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
-					temp.set(
-							temp.indexOf(f),
-							new Token(Double.toString(f.getSymbol().operator(a, b))));
-					break;
-				} else if (f.isFunction()) {
-					a = Double.parseDouble(temp.remove(temp.indexOf(f) - 1).getValue());
-					temp.set(
-							temp.indexOf(f),
-							new Token(Double.toString(f.getSymbol().function(a))));
-					break;
-				}
-			}
+		Stack<Token> stack = new Stack<Token>();
+		for (Token token : temp) {
+			stack.push(
+			  token.isNumber()? token
+			: token.isOperator()? new Token(Double.toString(token.getSymbol().operator(Double.parseDouble(stack.pop().getValue()),Double.parseDouble(stack.pop().getValue()))))
+			: token.isFunction()? new Token(Double.toString(token.getSymbol().function(Double.parseDouble(stack.pop().getValue())))) 
+			: null);
 		}
-		return Double.parseDouble(temp.getFirst().getValue());
+		return Double.parseDouble(stack.pop().getValue());
 	}
 }
