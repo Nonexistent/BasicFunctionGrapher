@@ -8,6 +8,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class FunctionManager {
@@ -28,7 +29,7 @@ public class FunctionManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void completeFunctions(InputForm form, final JFrame frame) {
+	public void completeFunctions(InputForm form, final JFrame frame, final JTextArea statusArea) {
 			for(JPanel p : form.getFormList()){
 				final JTextField field = (JTextField) p.getComponent(2);
 				if(!field.getText().equals("")){
@@ -37,7 +38,7 @@ public class FunctionManager {
 					(new Thread(new Runnable(){
 						@Override
 						public void run() {
-							new Function(name, field.getText(), new Color(color), FunctionManager.this, graph);
+							new Function(name, field.getText(), new Color(color), FunctionManager.this, graph, statusArea);
 							frame.repaint();
 						}
 						

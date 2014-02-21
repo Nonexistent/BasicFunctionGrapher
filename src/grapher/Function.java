@@ -3,10 +3,15 @@ package grapher;
 import grapher.tokens.Token;
 
 import java.awt.Color;
+import java.util.ArrayDeque;
+import java.util.EmptyStackException;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.swing.JTextArea;
 
 public class Function {
 	private FunctionManager functionManager;
@@ -15,17 +20,28 @@ public class Function {
 	private double[][] xyValues;
 	private String name; //f1, f2, f3.....etc
 	
-	public Function(String name, String expression, Color color, FunctionManager functionManager, Graph graph){
+	public Function(String name, String expression, Color color, FunctionManager functionManager, Graph graph, JTextArea statusArea){
 		this.name = name;
 		this.functionManager = functionManager;
+		int expressionLength = expression.length();
 		//edits syntax to algo readable form
+		if((expressionLength - expression.replace("(", "").length()) != (expressionLength - expression.replace(")", "").length())) {
+			statusArea.append("\n" + this.name + " Error; missing brackets.");
+			return;
+		}
 		expression = checkForMultiply(expression);
 		expression = checkForNegative(expression);
 		expression = insertHash(expression);
 		System.out.println(expression);
 		tokenizer(expression);
 		this.reversePolish = shuntingYard(expressionToken);
-		this.xyValues = completeXYValues(reversePolish);
+		Queue<Integer> variablePosition = variablePosition(reversePolish);
+		try {
+			this.xyValues = completeXYValues(reversePolish, variablePosition);
+		} catch (EmptyStackException e) {
+			statusArea.append("\n" + name + ": Syntax error.");
+			return;
+		}
 		graph.plot(xyValues, color);
 	}
 	
@@ -63,33 +79,43 @@ public class Function {
 		return checkLoop(s, pattern = Pattern.compile("[-x+/*)(^][^#]|[^#][-x+/*)(^]"), pattern.matcher(s), "#");
 	}
 	
-	public double[][] completeXYValues(LinkedList<Token> tokenList){
+	private Queue<Integer> variablePosition(LinkedList<Token> s){
+		Queue<Integer> positions = new ArrayDeque<Integer>(7);
+		for(Token token: s){
+			if(token.isVariable()){
+				positions.add(s.indexOf(token));
+			}
+		}
+		return positions;
+	}
+	
+	private double[][] completeXYValues(LinkedList<Token> tokenList, Queue<Integer> variablePosition) throws EmptyStackException{
 		//index 0 for x, index 1 for y
 		double[][] xyValues = new double[2][functionManager.xImageLength];
+		double y = 0;
 		for(int i = 0; i < functionManager.xImageLength; i++){
-			double y = evaluate(tokenList, (i/functionManager.xImageIncrement) + functionManager.Xmin);
+			y = evaluate(tokenList, variablePosition, (i/functionManager.xImageIncrement) + functionManager.Xmin);
 			xyValues[0][i] = i;
 			//System.out.println("x: " + ((i/functionManager.xImageIncrement) + functionManager.Xmin) + " y: " + y);
 			xyValues[1][i] = Double.POSITIVE_INFINITY == y ? Double.MIN_EXPONENT
 					: Double.NEGATIVE_INFINITY == y ? Double.MAX_EXPONENT : functionToImage(y);
-			
 		}
 		return xyValues;
 	}
 
-	public double functionToImage(double input) {
+	private double functionToImage(double input) {
 		return input > 0 ?
 			functionManager.yImageOrigin - (functionManager.yImageIncrement * input) :
 		 functionManager.yImageOrigin + (functionManager.yImageIncrement * Math.abs(input));
 	}
 	
-	public void tokenizer(String s) {
+	private void tokenizer(String s) {
 		for (String section : s.split("#")) {
 			expressionToken.add(new Token(section));
 		}
 	}
 
-	public LinkedList<Token> shuntingYard(LinkedList<Token> tokenList) {
+	private LinkedList<Token> shuntingYard(LinkedList<Token> tokenList) {
 		Stack<Token> stack = new Stack<Token>();
 		LinkedList<Token> output = new LinkedList<Token>();
 		for (Token t : tokenList) {
@@ -133,12 +159,10 @@ public class Function {
 		return output;
 	}
 
-	private Double evaluate(LinkedList<Token> s, double x) {
+	private Double evaluate(LinkedList<Token> s, Queue<Integer> variablePosition, double x) throws EmptyStackException{
 		LinkedList<Token> temp = new LinkedList<Token>(s);
-		for (Token j : temp) {
-			if (j.isVariable()) {
-				temp.set(temp.indexOf(j), new Token(Double.toString(x)));
-			}
+		for (Integer j : variablePosition) {
+				temp.set(j, new Token(Double.toString(x)));
 		}
 		Stack<Token> stack = new Stack<Token>();
 		for (Token token : temp) {

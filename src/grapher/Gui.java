@@ -2,24 +2,32 @@ package grapher;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
 
 public class Gui {
 	private JFrame frame = new JFrame("Graph");
 	private JPanel functionPanel = new JPanel();
+	private JTextArea statusArea = new JTextArea("Hi there.");
+	private JScrollPane scroll;
 	private BufferedImage graphArea = new BufferedImage(280, 250, BufferedImage.TYPE_INT_RGB);
 	private FunctionManager functionManager;
 	private Graph graph;
@@ -68,10 +76,22 @@ public class Gui {
 	}
 	
 	private Component functionPanel(){
+		JPanel p = new JPanel();
 		functionPanel.setLayout(new BoxLayout(functionPanel, BoxLayout.Y_AXIS));
+		p.setBorder(BorderFactory.createTitledBorder("Status:"));
+		scroll = new JScrollPane(statusArea);
+		statusArea.setEditable(false);
+		statusArea.setOpaque(false);
+		statusArea.setLineWrap(true);
+		statusArea.setWrapStyleWord(true);
+		statusArea.setFont(new Font("Arial", Font.PLAIN, 9));
 		for(JPanel o : form.getFormList()){
 			functionPanel.add(o);
 		}
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		((DefaultCaret)statusArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		p.add(scroll);
+		functionPanel.add(p);
 		return functionPanel;
 	}
 	
@@ -108,6 +128,7 @@ public class Gui {
 					((JTextField) p.getComponent(2)).setText("");
 				}
 				graph.init();
+				statusArea.setText("");
 				frame.repaint();
 			}
 		}));
@@ -117,17 +138,20 @@ public class Gui {
 				if(functionPanel.isVisible()){
 					this.putValue(NAME, "Show Functions");
 					functionPanel.setVisible(!functionPanel.isVisible());
+					frame.pack();
 				}else{
 					this.putValue(NAME, "Hide Functions");
 					functionPanel.setVisible(!functionPanel.isVisible());
+					frame.pack();
+					scroll.setPreferredSize(new Dimension(functionPanel.getWidth() - 30, 100));
+					scroll.revalidate();
 				}
-				frame.pack();
 			}
 		}));
 		p.add(new JButton(new AbstractAction("Graph"){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				functionManager.completeFunctions(form, frame);
+				functionManager.completeFunctions(form, frame, statusArea);
 				frame.repaint();
 			}
 		}));
@@ -170,7 +194,7 @@ public class Gui {
 				clearGraph();
 				graph.init();
 				functionManager.updateValues();
-				functionManager.completeFunctions(form, frame);
+				functionManager.completeFunctions(form, frame, statusArea);
 				frame.repaint();
 				f.dispose();
 			}
