@@ -1,19 +1,18 @@
-package grapher;
+package grapher.gui;
 
-import java.awt.Color;
+import grapher.Button;
+import grapher.InputForm;
+import grapher.managers.FunctionManager;
+
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,59 +22,28 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.text.DefaultCaret;
 
-public class Gui {
-	private JFrame frame = new JFrame("Graph");
+@SuppressWarnings("serial")
+public class GraphingPanel extends PanelBase {
 	private JPanel functionPanel = new JPanel();
 	private JTextArea statusArea = new JTextArea("Hi there.");
 	private JScrollPane scroll;
-	private BufferedImage graphArea = new BufferedImage(280, 250, BufferedImage.TYPE_INT_RGB);
+	private final InputForm form = new InputForm();
 	private FunctionManager functionManager;
-	private Graph graph;
-	private InputForm form = new InputForm();
-	private String[] functionArray = {"abs()", "log()", "ln()", "sin()", "cos()", "tan()"};
-	private String[] operatorArray = {"+", "-", "*", "/", "^", "x", "(", ")"};
+	private JFrame frame;
+	private final String[] functionArray = {"abs()", "log()", "ln()", "sin()", "cos()", "tan()"};
+	private final String[] operatorArray = {"+", "-", "*", "/", "^", "x", "(", ")"};
 	
-	public Gui(){
-		this.graph = new Graph(this);
+	public GraphingPanel(JFrame frame){
+		this.frame = frame;
+		createFM();
+		panel.add(buttons());
 	}
 	
 	private void createFM(){
-		this.graph.init();
-		this.functionManager = new FunctionManager(this.graph);
+		this.functionManager = new FunctionManager(graph);
 	}
 	
-	public void go(){
-		JPanel mainPanel = new JPanel();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(420, 500);
-		frame.getContentPane().setLayout(new FlowLayout());
-		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-		mainPanel.add(graph());
-		createFM();
-		mainPanel.add(buttons());
-		frame.getContentPane().add(functionPanel());
-		functionPanel.setVisible(false);
-		frame.getContentPane().add(mainPanel);
-		frame.setLocationRelativeTo(null);
-		frame.setResizable(false);
-		frame.pack();
-		frame.setVisible(true);
-	}
-	
-	private void clearGraph(){
-		graphArea.getGraphics().setColor(Color.WHITE);
-		graphArea.getGraphics().fillRect(0, 0, graphArea.getWidth(), graphArea.getHeight());
-	}
-	
-	private Component graph(){
-		JPanel p = new JPanel();
-		JLabel label = new JLabel(new ImageIcon(this.graphArea));
-		clearGraph();
-		p.add(label);
-		return p;
-	}
-	
-	private Component functionPanel(){
+	public JPanel getFunctionPanel(){
 		JPanel p = new JPanel();
 		functionPanel.setLayout(new BoxLayout(functionPanel, BoxLayout.Y_AXIS));
 		p.setBorder(BorderFactory.createTitledBorder("Status:"));
@@ -111,7 +79,6 @@ public class Gui {
 		return p;
 	}
 	
-	@SuppressWarnings("serial")
 	private Component func(){
 		JPanel p = new JPanel(new GridLayout(4,2,3,3));
 		p.add(new JButton(new AbstractAction("Settings"){
@@ -166,7 +133,6 @@ public class Gui {
 		return p;
 	}
 	
-	@SuppressWarnings("serial")
 	private Component settings(){
 		final JFrame f = new JFrame("Settings");
 		JPanel top = new JPanel();
@@ -205,13 +171,5 @@ public class Gui {
 		f.setLocationRelativeTo(null);
 		f.setVisible(true);
 		return f;
-	}
-	
-	public BufferedImage getGraphArea(){
-		return this.graphArea;
-	}
-	
-	public Graphics getGraphics(){
-		return this.graphArea.getGraphics();
 	}
 }

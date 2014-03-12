@@ -1,5 +1,6 @@
 package grapher;
 
+import grapher.managers.ManagerBase;
 import grapher.tokens.Token;
 
 import java.awt.Color;
@@ -14,15 +15,15 @@ import java.util.regex.Pattern;
 import javax.swing.JTextArea;
 
 public class Function {
-	private FunctionManager functionManager;
+	private ManagerBase manager;
 	private LinkedList<Token> expressionToken = new LinkedList<Token>();
 	private LinkedList<Token> reversePolish;
 	private double[][] xyValues;
 	private String name; //f1, f2, f3.....etc
 	
-	public Function(String name, String expression, Color color, FunctionManager functionManager, Graph graph, JTextArea statusArea){
+	public Function(String name, String expression, Color color, ManagerBase manager, Graph graph, JTextArea statusArea){
 		this.name = name;
-		this.functionManager = functionManager;
+		this.manager = manager;
 		int expressionLength = expression.length();
 		//edits syntax to algo readable form
 		if((expressionLength - expression.replace("(", "").length()) != (expressionLength - expression.replace(")", "").length())) {
@@ -91,12 +92,12 @@ public class Function {
 	
 	private double[][] completeXYValues(LinkedList<Token> tokenList, Queue<Integer> variablePosition) throws EmptyStackException{
 		//index 0 for x, index 1 for y
-		double[][] xyValues = new double[2][functionManager.xImageLength];
+		double[][] xyValues = new double[2][manager.xImageLength];
 		double y = 0;
-		for(int i = 0; i < functionManager.xImageLength; i++){
-			y = evaluate(tokenList, variablePosition, (i/functionManager.xImageIncrement) + functionManager.Xmin);
+		for(int i = 0; i < manager.xImageLength; i++){
+			y = evaluate(tokenList, variablePosition, (i/manager.xImageIncrement) + manager.Xmin);
 			xyValues[0][i] = i;
-			//System.out.println("x: " + ((i/functionManager.xImageIncrement) + functionManager.Xmin) + " y: " + y);
+			//System.out.println("x: " + ((i/manager.xImageIncrement) + manager.Xmin) + " y: " + y);
 			xyValues[1][i] = Double.POSITIVE_INFINITY == y ? Double.MIN_EXPONENT
 					: Double.NEGATIVE_INFINITY == y ? Double.MAX_EXPONENT : functionToImage(y);
 		}
@@ -105,8 +106,8 @@ public class Function {
 
 	private double functionToImage(double input) {
 		return input > 0 ?
-			functionManager.yImageOrigin - (functionManager.yImageIncrement * input) :
-		 functionManager.yImageOrigin + (functionManager.yImageIncrement * Math.abs(input));
+			manager.yImageOrigin - (manager.yImageIncrement * input) :
+		 manager.yImageOrigin + (manager.yImageIncrement * Math.abs(input));
 	}
 	
 	private void tokenizer(String s) {

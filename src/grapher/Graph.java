@@ -1,5 +1,6 @@
 package grapher;
 
+import grapher.gui.PanelBase;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -15,7 +16,7 @@ public class Graph {
 	private double Ymin = -10;
 	private int xImageLength = 0;
 	private int yImageLength = 0;
-	private double xImageOrigin = 0;
+	double xImageOrigin = 0;
 	private double yImageOrigin = 0;
 	private double xImageIncrement = 0;
 	private double yImageIncrement = 0;
@@ -23,11 +24,11 @@ public class Graph {
 	private Graphics2D g;
 	Path2D.Double line = new Path2D.Double();
 
-	public Graph(Gui gui) {
-		this.graphArea = gui.getGraphArea();
+	public Graph(PanelBase abstractPanel) {
+		this.graphArea = abstractPanel.getGraphArea();
 		this.xImageLength = this.graphArea.getWidth();
 		this.yImageLength = this.graphArea.getHeight();
-		this.g = (Graphics2D) gui.getGraphics();
+		this.g = (Graphics2D) abstractPanel.getGraphics();
 		this.g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 	}
 
@@ -80,6 +81,15 @@ public class Graph {
 		}
 		g.draw(line);
 		line.reset();
+	}
+	
+	public void plotPoints(double[][] xyValues){
+		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+		g.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g.setColor(Color.decode("#751975"));
+		for(int i = 0; i < xyValues[0].length ; i++){
+			g.draw(new Line2D.Double(xyValues[0][i], xyValues[1][i], xyValues[0][i], xyValues[1][i]));
+		}
 	}
 	
 	public double getxImageIncrement() {
