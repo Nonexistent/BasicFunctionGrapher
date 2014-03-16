@@ -19,7 +19,6 @@ public class LinearRegressionPanel extends PanelBase {
 	private final JTextField learnRate = new JTextField();
 
 	public LinearRegressionPanel(JFrame frame) {
-		panel.add(learnRate);
 		panel.add(fileFinder());
 		panel.add(options());
 	}

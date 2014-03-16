@@ -2,6 +2,7 @@ package grapher;
 
 import grapher.gui.GraphingPanel;
 import grapher.gui.LinearRegressionPanel;
+import grapher.gui.ParametricPanel;
 
 import java.awt.FlowLayout;
 
@@ -47,6 +48,7 @@ public class Main {
 		});
 		tabs.add("Graph", graphingPanel.getPanel());
 		tabs.add("Linear Regression", new LinearRegressionPanel(frame).getPanel());
+		tabs.add("Parametric", new ParametricPanel().getPanel());
 		frame.getContentPane().add(tabs);
 		frame.setResizable(false);
 		frame.pack();

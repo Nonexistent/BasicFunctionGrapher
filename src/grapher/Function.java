@@ -16,9 +16,10 @@ import javax.swing.JTextArea;
 
 public class Function {
 	private ManagerBase manager;
-	private LinkedList<Token> expressionToken = new LinkedList<Token>();
+	private LinkedList<Token> expressionToken;
 	private LinkedList<Token> reversePolish;
 	private double[][] xyValues;
+	public double[] value;
 	private String name; //f1, f2, f3.....etc
 	
 	public Function(String name, String expression, Color color, ManagerBase manager, Graph graph, JTextArea statusArea){
@@ -34,7 +35,7 @@ public class Function {
 		expression = checkForNegative(expression);
 		expression = insertHash(expression);
 		System.out.println(expression);
-		tokenizer(expression);
+		expressionToken = tokenizer(expression);
 		this.reversePolish = shuntingYard(expressionToken);
 		Queue<Integer> variablePosition = variablePosition(reversePolish);
 		try {
@@ -44,6 +45,22 @@ public class Function {
 			return;
 		}
 		graph.plot(xyValues, color);
+	}
+	
+	public Function(double min, double max, String expression){
+		expression = checkForMultiply(expression);
+		expression = checkForNegative(expression);
+		expression = insertHash(expression);
+		System.out.println(expression);
+		expressionToken = tokenizer(expression);
+		this.reversePolish = shuntingYard(expressionToken);
+		Queue<Integer> variablePosition = variablePosition(reversePolish);
+		try {
+			this.value = completeParametric(reversePolish, variablePosition, min, max);
+		} catch (EmptyStackException e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 	
 	private String checkForMultiply(String s){
@@ -103,6 +120,18 @@ public class Function {
 		}
 		return xyValues;
 	}
+	
+	public double[] completeParametric(LinkedList<Token> tokenList, Queue<Integer> variablePosition, double min, double max) throws EmptyStackException{
+		double[] value = new double[(int) (Math.abs(min) + Math.abs(max) / 0.1) + 1];
+		double y = 0;
+		int counter = 0;
+		for(double i = min; i <= max; i+=.1){
+			y = evaluate(tokenList, variablePosition, i);
+			value[counter++] = Double.POSITIVE_INFINITY == y ? Double.MIN_EXPONENT
+					: Double.NEGATIVE_INFINITY == y ? Double.MAX_EXPONENT : y;
+		}
+		return value;
+	}
 
 	private double functionToImage(double input) {
 		return input > 0 ?
@@ -110,10 +139,12 @@ public class Function {
 		 manager.yImageOrigin + (manager.yImageIncrement * Math.abs(input));
 	}
 	
-	private void tokenizer(String s) {
+	private LinkedList<Token> tokenizer(String s) {
+		LinkedList<Token> temp = new LinkedList<Token>();
 		for (String section : s.split("#")) {
-			expressionToken.add(new Token(section));
+			temp.add(new Token(section));
 		}
+		return temp;
 	}
 
 	private LinkedList<Token> shuntingYard(LinkedList<Token> tokenList) {

@@ -92,6 +92,18 @@ public class Graph {
 		}
 	}
 	
+	public void plotLine(double[][] xyValues){
+		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+		g.setStroke(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+		g.setColor(Color.decode("#751975"));
+		line.moveTo(xyValues[0][0], xyValues[1][0]);
+		for(int i = 1; i < xyValues[0].length ; i++){
+			line.lineTo(xyValues[0][i], xyValues[1][i]);
+		}
+		g.draw(line);
+		line.reset();
+	}
+	
 	public double getxImageIncrement() {
 		return this.xImageIncrement;
 	}
