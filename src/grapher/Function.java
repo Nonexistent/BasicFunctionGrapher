@@ -122,7 +122,7 @@ public class Function {
 	}
 	
 	public double[] completeParametric(LinkedList<Token> tokenList, Queue<Integer> variablePosition, double min, double max) throws EmptyStackException{
-		double[] value = new double[(int) (Math.abs(min) + Math.abs(max) / 0.1) + 1];
+		double[] value = new double[(int) ((Math.abs(min) + Math.abs(max)) / 0.1) + 1];
 		double y = 0;
 		int counter = 0;
 		for(double i = min; i <= max; i+=.1){
