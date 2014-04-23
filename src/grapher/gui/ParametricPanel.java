@@ -16,14 +16,16 @@ import javax.swing.JTextField;
 public class ParametricPanel extends PanelBase {
 	private final JTextField x = new JTextField(17);
 	private final JTextField y = new JTextField(17);
-	private final JTextField min = new JTextField(5);
-	private final JTextField max = new JTextField(5);
+	private final JTextField min = new JTextField(7);
+	private final JTextField max = new JTextField(7);
 
 	public ParametricPanel() {
 		panel.add(settingButton());
 		panel.add(textFields());
 		min.setText("0");
 		max.setText("7");
+		x.setText("sin(x)(e^cos(x)-2cos(4x)-sin(x/12)^5)");
+		y.setText("cos(x)(e^cos(x)-2cos(4x)-sin(x/12)^5)");
 	}
 
 	private JPanel settingButton() {

@@ -16,13 +16,13 @@ public class Graph {
 	private double Ymin = -10;
 	private int xImageLength = 0;
 	private int yImageLength = 0;
-	double xImageOrigin = 0;
+	private double xImageOrigin = 0;
 	private double yImageOrigin = 0;
 	private double xImageIncrement = 0;
 	private double yImageIncrement = 0;
 	private BufferedImage graphArea;
 	private Graphics2D g;
-	Path2D.Double line = new Path2D.Double();
+	private Path2D.Double line = new Path2D.Double();
 
 	public Graph(PanelBase abstractPanel) {
 		this.graphArea = abstractPanel.getGraphArea();

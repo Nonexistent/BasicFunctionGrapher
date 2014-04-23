@@ -15,9 +15,9 @@ public class Token{
 		
 		private void setup(String s){
 			for(Symbols o : Symbols.values()){
-				if(s.equals(o.getValue())){
+				if(s.equals(o.getRepresentation())){
 					this.symbols = o;
-					this.value = o.getValue();
+					this.value = o.toString();
 					this.precedense = o.getPrecedense();
 					this.associativity = o.getAssociativity();
 					this.isOperator = o.isOperator();
@@ -53,7 +53,7 @@ public class Token{
 		}
 		
 		public boolean isNumber(){
-			return !this.isOperator && !this.isBracket;
+			return !this.isOperator && !this.isBracket && !isFunction;
 		}
 		
 		public boolean isLeftBracket(){
@@ -64,12 +64,8 @@ public class Token{
 			return this.value.equals(")");
 		}
 		
-		public boolean isMinusSign(){
-			return this.value.equals("-");
-		}
-		
 		public boolean isVariable(){
-			return this.value.equals("x");
+			return this.value.matches("[a-z&&[^e]]");
 		}
 		
 		public boolean isFunction(){

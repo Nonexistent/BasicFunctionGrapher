@@ -1,5 +1,6 @@
 package grapher;
 
+import grapher.derivative.Node;
 import grapher.managers.ManagerBase;
 import grapher.tokens.Token;
 
@@ -21,6 +22,7 @@ public class Function {
 	private double[][] xyValues;
 	public double[] value;
 	private String name; //f1, f2, f3.....etc
+	private Node expressionTree;
 	
 	public Function(String name, String expression, Color color, ManagerBase manager, Graph graph, JTextArea statusArea){
 		this.name = name;
@@ -45,6 +47,8 @@ public class Function {
 			return;
 		}
 		graph.plot(xyValues, color);
+		createTree();
+		System.out.println("derivative: " + expressionTree.derive());
 	}
 	
 	public Function(double min, double max, String expression){
@@ -205,5 +209,28 @@ public class Function {
 			: null);
 		}
 		return Double.parseDouble(stack.pop().getValue());
+	}
+	
+	public void createTree(){
+		Stack<Node> treeStack = new Stack<Node>();
+		LinkedList<Token> temp = new LinkedList<Token>(reversePolish);
+		while(!temp.isEmpty()){
+		loop:
+		for(int index = 0, end = temp.size(); index < end; index++){
+			if(temp.get(index).isOperator()){
+				if(index - 1 >= 0 && temp.get(index - 1).isNumber() && index - 2 < 0){
+					treeStack.push(new Node(temp.remove(index), new Node(temp.remove(index - 1)), treeStack.pop()));
+					break loop;
+				}else if(index - 1 > 0 && temp.get(index - 1).isNumber() && index - 2 >= 0 && temp.get(index - 2).isNumber()){
+					treeStack.push(new Node(temp.remove(index), new Node(temp.remove(index - 1)), new Node(temp.remove(index - 2))));
+					break loop;
+				}else if(index == 0){
+					treeStack.push(new Node(temp.poll(), treeStack.pop(), treeStack.pop()));
+					break loop;
+				}
+			}
+		}
+		}
+		this.expressionTree = treeStack.pop();
 	}
 }

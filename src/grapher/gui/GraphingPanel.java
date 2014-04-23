@@ -35,14 +35,9 @@ public class GraphingPanel extends PanelBase {
 	
 	public GraphingPanel(JFrame frame){
 		this.frame = frame;
-		createFM();
+		this.functionManager = new FunctionManager(graph);
 		panel.add(buttons());
 	}
-	
-	private void createFM(){
-		this.functionManager = new FunctionManager(graph);
-	}
-	
 	public JPanel getFunctionPanel(){
 		JPanel p = new JPanel();
 		functionPanel.setLayout(new BoxLayout(functionPanel, BoxLayout.Y_AXIS));
