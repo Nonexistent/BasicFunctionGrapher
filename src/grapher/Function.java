@@ -47,8 +47,6 @@ public class Function {
 			return;
 		}
 		graph.plot(xyValues, color);
-		createTree();
-		System.out.println("derivative: " + expressionTree.derive());
 	}
 	
 	public Function(double min, double max, String expression){
@@ -65,6 +63,25 @@ public class Function {
 			e.printStackTrace();
 			return;
 		}
+	}
+	
+	public Function(String expression){
+		expression = checkForMultiply(expression);
+		expression = checkForNegative(expression);
+		expression = insertHash(expression);
+		System.out.println(expression);
+		expressionToken = tokenizer(expression);
+		this.reversePolish = shuntingYard(expressionToken);
+		createTree();
+	}
+	
+	public String getDerivative(){
+		String raw = expressionTree.derive();
+		return (new Function(raw)).getTree().simplify().replaceFirst("^\\(", "").replaceFirst("\\)$", "");
+	}
+	
+	public Node getTree(){
+		return expressionTree;
 	}
 	
 	private String checkForMultiply(String s){
@@ -214,22 +231,12 @@ public class Function {
 	public void createTree(){
 		Stack<Node> treeStack = new Stack<Node>();
 		LinkedList<Token> temp = new LinkedList<Token>(reversePolish);
-		while(!temp.isEmpty()){
-		loop:
-		for(int index = 0, end = temp.size(); index < end; index++){
-			if(temp.get(index).isOperator()){
-				if(index - 1 >= 0 && temp.get(index - 1).isNumber() && index - 2 < 0){
-					treeStack.push(new Node(temp.remove(index), new Node(temp.remove(index - 1)), treeStack.pop()));
-					break loop;
-				}else if(index - 1 > 0 && temp.get(index - 1).isNumber() && index - 2 >= 0 && temp.get(index - 2).isNumber()){
-					treeStack.push(new Node(temp.remove(index), new Node(temp.remove(index - 1)), new Node(temp.remove(index - 2))));
-					break loop;
-				}else if(index == 0){
-					treeStack.push(new Node(temp.poll(), treeStack.pop(), treeStack.pop()));
-					break loop;
-				}
-			}
-		}
+		for(Token token : temp){
+			treeStack.push(
+					token.isNumber()? new Node(token)
+				 :  token.isOperator()? new Node(token, treeStack.pop(), treeStack.pop())
+				 :  null
+					);
 		}
 		this.expressionTree = treeStack.pop();
 	}

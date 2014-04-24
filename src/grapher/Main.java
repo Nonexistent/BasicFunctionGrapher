@@ -1,5 +1,6 @@
 package grapher;
 
+import grapher.gui.DerivativePanel;
 import grapher.gui.GraphingPanel;
 import grapher.gui.LinearRegressionPanel;
 import grapher.gui.ParametricPanel;
@@ -49,6 +50,7 @@ public class Main {
 		tabs.add("Graph", graphingPanel.getPanel());
 		tabs.add("Linear Regression", new LinearRegressionPanel(frame).getPanel());
 		tabs.add("Parametric", new ParametricPanel().getPanel());
+		tabs.add("Derivative", new DerivativePanel().getPanel());
 		frame.getContentPane().add(tabs);
 		frame.setResizable(false);
 		frame.pack();
